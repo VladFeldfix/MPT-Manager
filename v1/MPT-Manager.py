@@ -198,58 +198,109 @@ class main:
                     self.pa.fatal_error("Invalid outlet: "+outlet)
             
             # load all maps
-            maps = {} # {"10": [[GLOBAL_POINT	BRAID_ID	PIN	BRIAD	PLUG_PART_NUMBER	FLEX_PLUG_PART_NUMBER	PIN_TYPE], ...]}
+            Maps = {} # {"10": [[GLOBAL_POINT	BRAID_ID	PIN	BRIAD	PLUG_PART_NUMBER	FLEX_PLUG_PART_NUMBER	PIN_TYPE], ...]}
             for test_cable, outlet in Testcables_to_outlets.items():
-                if not test_cable in maps:
-                    maps[test_cable] = self.pa.read_csv(self.maps_location+"/"+test_cable+".csv")
+                if not test_cable in Maps:
+                    Maps[test_cable] = self.pa.read_csv(self.maps_location+"/"+test_cable+".csv")[1:]
 
             # make csv file from maps
-            for test_cable, obj_map in maps.items():
-                currentBraidPin = ""
+            emptyNets = 999
+            netLocations = {}
+            for test_cable, obj_map in Maps.items():
+                i = 0
+                doNext = True
                 for row in obj_map:
-                    # calculate variables
-                    NetLocations = {} # {net number: net size}
-                    # plug
+                    # not every row is a valid row. so the first thing to do is to test if the row is valid
                     if len(row) >= 3:
-                        braidNumber = row[1]
-                        testCable_braid = test_cable+"."+braidNumber # P5.10
-                        if testCable_braid in Testcables_to_product:
-                            plug = Testcables_to_product[testCable_braid] # P5
+                        # to build a line in the csv file each of the following variables must be calculated
+                        # plugName, Pin, globalPoint, netNumber, netLocation, netName, fourWire
 
-                            # pin
-                            pin = row[2]
+                        # plugName
+                        # variable test_cable is a number. we must match the number of the test cable to the connector it is attached to
+                        # to do that we must go to Testcables_to_product dictionary and find the plug name
+                        # the plug name is the test_cable.braid_number
+                        # if the plug is not in the dictionary it is irelevant and this line should be ignored
+                        braid_number = row[1]
+                        braidId = test_cable+"."+braid_number # 10.2
+                        if braidId in Testcables_to_product:
+                            # Pin
+                            Pin = row[2]
 
                             # globalPoint
-                            globalPoint = int(row[0])
-                            globalPoint += Outlets[Testcables_to_outlets[test_cable]]
+                            # the global point is calculated by getting the global point from the map + the outlet number
+                            try:
+                                globalPoint = int(row[0])
+                            except:
+                                self.pa.fatal_error("Invalid global point: "+str(globalPoint)+" in file: "+str(test_cable)+".csv")
+                            if test_cable in Testcables_to_outlets:
+                                if Testcables_to_outlets[test_cable] in Outlets:
+                                    globalPoint += Outlets[Testcables_to_outlets[test_cable]]
+                                else:
+                                    self.pa.fatal_error("Invalid outlet: "+Testcables_to_outlets[test_cable])
+                            else:
+                                self.pa.fatal_error("Unmapped plug: "+test_cable)
 
                             # netNumber
-                            netNumber = Netlist[testCable_braid]
-
-                            # netLocation
-                            if not netNumber in NetLocations:
-                                NetLocations[netNumber] = 1
+                            # the net number can be either a number from 1-999 for used nets or 1000+ for empty nets
+                            plugName = Testcables_to_product[braidId]
+                            if plugName+"."+Pin in Netlist:
+                                try:
+                                    netNumber = int(Netlist[plugName+"."+Pin]) # P5.10 = "6"
+                                except:
+                                    self.pa.fatal_error("Invalid net number "+str(netNumber))
                             else:
-                                if testCable_braid != currentBraidPin:
-                                    NetLocations[netNumber] += 1
-                            netLocation = str(NetLocations[netNumber])
+                                emptyNets += 1
+                                netNumber = emptyNets
+
+                            # netLocation and fourWire
+                            # the net location is the last location + 1 if the cable is not fourwire
+                            # the first step is to identify the pin as two or fourwire
+                            # to do that test the next elemt and the previous element
+                            fourWire = "1"
+
+                            # test next element
+                            if i != len(obj_map)-1:
+                                curr_element = row[1]+"."+row[2]
+                                next_element = obj_map[i+1][1]+"."+obj_map[i+1][2]
+                                if curr_element == next_element:
+                                    fourWire = "2"
+
+                            # test prev row
+                            if i > 0:
+                                curr_element = row[1]+"."+row[2]
+                                prev_element = obj_map[i-1][1]+"."+obj_map[i-1][2]
+                                if curr_element == prev_element:
+                                    fourWire = "2"
+                                
+                            if not netNumber in netLocations:
+                                netLocations[netNumber] = 1
+                            else:
+                                if doNext:
+                                    netLocations[netNumber] += 1
+                            netLocation = netLocations[netNumber]
+                            lastBraidId = braidId
 
                             # netName
-                            netName = Netnumbers[netNumber]
-
-                            # fourWire
-                            if testCable_braid == currentBraidPin:
-                                fourWire = "2"
+                            # get the net name from Netnumbers
+                            if netNumber < 1000:
+                                if str(netNumber) in Netnumbers:
+                                    netName = Netnumbers[str(netNumber)]
+                                else:
+                                    self.pa.fatal_error("Unnamed net number: "+str(netNumber))
                             else:
-                                fourWire = "1"
-                            currentBraidPin = testCable_braid
-                            csv.append((plug, pin, globalPoint, netNumber, netLocation, netName, fourWire))
-            
+                                netName = "NC_"+plugName+"."+Pin
+                            
+                            # write to csv if it is not the second wire of a fourWire
+                            if fourWire == "2":
+                                doNext = not doNext
+                            if doNext:
+                                csv.append((plugName, Pin, globalPoint, netNumber, netLocation, netName, fourWire))
+                    i += 1
             # write result to csv file
             file = open(self.directory+"/"+product_part_number+"/"+product_part_number+".csv", 'w')
             for row in csv:
-                text = row[0]+","+row[1]+","+row[2]+","+row[3]+","+row[4]+","+row[5]+","+row[6]+"\n"
-                self.pa.print(text)
+                text = str(row[0])+","+str(row[1])+","+str(row[2])+","+str(row[3])+","+str(row[4])+","+str(row[5])+","+str(row[6])+"\n"
+                self.pa.print(text.replace("\n", ''))
                 file.write(text)
             file.close()
 
