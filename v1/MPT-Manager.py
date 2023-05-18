@@ -13,7 +13,7 @@ class main:
     def __init__(self):
         # set up Personal Assistant
         self.pa = PersonalAssistant(__file__, "MPT-Manager", "1.0")
-
+        
         # load settings
         self.directory = self.pa.get_setting("MPT Programs")
         self.maps_location = self.pa.get_setting("Maps Location")
@@ -22,12 +22,12 @@ class main:
         # check all locations
         for path in settings_list:
             if (not os.path.isdir(path)) and (not os.path.isfile(path)):
-                self.pa.fatal_error("Missing: "+path)
+                self.pa.fatal_error(path, 205)
 
         # MAIN MENU
         self.pa.main_menu["CREATE A NEW MPT PROGRAM"] = self.run
         self.pa.display_menu()
-
+        
         # run GUI
         self.pa.run()
     
@@ -36,7 +36,7 @@ class main:
         # get product part number
         product_part_number = self.pa.input("Insert PRODUCT PART NUMBER").upper()
         if product_part_number == "":
-            self.pa.error("Invalid PRODUCT PART NUMBER")
+            self.pa.error("Invalid PRODUCT PART NUMBER", 106)
             error = True
         
         # crtate folder
@@ -147,7 +147,7 @@ class main:
                 if not point in Netlist:
                     Netlist[point] = net_number
                 else:
-                    self.pa.fatal_error("Point: "+point+" is not unique")
+                    self.pa.fatal_error("Point: "+point+" is not unique",302)
             
             Netnumbers = {} # {"6": "RS434_P5V_RTN"}
             Netnames = {} # {"RS434_P5V_RTN": "6"}
@@ -159,7 +159,7 @@ class main:
                 if not net_number in Netnumbers:
                     Netnumbers[net_number] = net_name
                 else:
-                    self.pa.fatal_error("Net number: "+net_number+" is not unique")
+                    self.pa.fatal_error("Net number: "+net_number+" is not unique",303)
                 
                 # make sure that the net name is unique
                 if not net_name in Netnames:
@@ -313,7 +313,7 @@ class main:
 
         # if there was an error abbort mission
         if error:
-            self.pa.error("Mission aborted")
+            self.pa.abort()
 
         # restart
         self.pa.restart()
