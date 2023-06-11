@@ -61,33 +61,109 @@ class main:
         
         # if an exsiting folder
         else:
-            # load netlist
-            file = open(path+"/netlist.csv", 'r')
-            lines = file.readlines()
-            file.close()
+            # load files
+            netlist = self.sc.load_csv(path+"/netlist.csv")
+            netnames = self.sc.load_csv(path+"/netnames.csv")
+            testcables_to_outlets = self.sc.load_csv(path+"/testcables_to_outlets.csv", 'r')
+            testcables_to_product = self.sc.load_csv(path+"/testcables_to_product.csv", 'r')
 
+            # test loaded files for errors
+            # netlist
+            Netlist = {} # {ConnectorName.PinName: NetNumber} e.g. {P1.25: 17}
+            for row in netlist[1:]:
+                ConnectorName = row[0]
+                PinName = row[1]
+                NetNumber = row[2]
+                ConnectorNameAndPin = ConnectorName+"."+PinName
+                if ConnectorName == "":
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nMissing connector name")
+                    return
+                if PinName == "":
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nMissing pin name")
+                    return
+                if NetNumber == "":
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nMissing net number")
+                    return
+                try:
+                    NetNumber = int(NetNumber)
+                except:
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nNet number: "+NetNumber+" is a numerical value")
+                    return
+                if not ConnectorNameAndPin in Netlist:
+                    Netlist[ConnectorNameAndPin] = NetNumber
+                else:
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nLocation: "+ConnectorNameAndPin+" is not unique")
+                    return
+            
             # netnames
-            file = open(path+"/netnames.csv", 'r')
-            lines = file.readlines()
-            file.close()
+            NetNames = {} # {1: NET1_POWER}
+            used_names = []
+            for row in netnames[1:]:
+                NetNumber = row[0]
+                NetName = row[1]
+                if not NetNumber in NetNames:
+                    NetNames[NetNumber] = NetName
+                else:
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+NetNumber+" is not unique")
+                    return
+                if not NetName in used_names:
+                    used_names.append(NetName)
+                else:
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet name: "+NetName+" is not unique")
+                    return
 
             # testcables_to_outlets
-            file = open(path+"/testcables_to_outlets.csv", 'r')
-            lines = file.readlines()
-            file.close()
+            TestcablesToOutlets = {} # {57A: A1}
+            for row in testcables_to_outlets[1:]:
+                TestCable = row[0]
+                Outlet = row[1]
+                if not TestCable in TestcablesToOutlets:
+                    TestcablesToOutlets[TestCable] = Outlet
+                else:
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nTest cable: "+TestCable+" is not unique")
+                    return
+                if not Outlet in Outlets:
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nIvalid outlet: "+Outlet)
+                    return
 
             # testcables_to_product
-            file = open(path+"/testcables_to_product.csv", 'r')
-            lines = file.readlines()
-            file.close()
 
             # load maps
+            maps = {}
 
+            # create csv file
+            csv_file = []
+            for GlobalPoint, data in maps.items():
+                # maps -> { GlobalPoint: (TestCable 57, PinName 10, FourWire 1) }
+                # ConnectorName
+                ConnectorName = ""
 
-            # load script
-            file = open(path+"/script.txt", 'r')
-            lines = file.readlines()
-            file.close()
+                # PinName
+                PinName = ""
+
+                # GlobalPoint
+                GlobalPoint = ""
+
+                # NetNumber
+                NetNumber = ""
+
+                # NetLocation
+                NetLocation = ""
+
+                # NetName
+                NetName = ""
+
+                # FourWire
+                FourWire = ""
+                
+                # add new line
+                csv_file.append((ConnectorName, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire))
+            
+            # save scv file
+            self.sc.save_csv(path+"/"+part_number+".csv", csv_file)
+
+            # run script
+            self.sc.run_script(path+"/script.txt", functions)
 
         # restart
         self.sc.restart()
