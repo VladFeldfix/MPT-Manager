@@ -1,4 +1,0 @@
-var1 --> JDF
-var2 --> 8E87
-var3 --> KDJ
-var4 --> val
