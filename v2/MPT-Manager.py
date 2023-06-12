@@ -61,12 +61,161 @@ class main:
         
         # if an exsiting folder
         else:
-            # load files
-            netlist = self.sc.load_csv(path+"/netlist.csv")
-            netnames = self.sc.load_csv(path+"/netnames.csv")
-            testcables_to_outlets = self.sc.load_csv(path+"/testcables_to_outlets.csv", 'r')
-            testcables_to_product = self.sc.load_csv(path+"/testcables_to_product.csv", 'r')
+            # SET VARIABLES
+            Outlet = ""             # Outlet > A1, B1, C1 - C8
+            GlobalPoint = ""        # GlobalPoint > 1-1250
+            BraidMptSide = ""       # BraidMptSide > 1, 2, 3 ...
+            BraidProductSide = ""   # BraidProductSide > 1.1, 1.2, 1.3 ...
+            ProductPlug = ""        # ProductPlug > P1, J5 ....
+            PinName= ""             # PinName > 1, 2, 3, a_, b_, c_, A, B, C, BODY ...
+            NetNumber = ""          # NetNumber > 1, 2, 3 ...
+            NetName = ""            # NetName > Net1_Power, Net2_Rtn ...
+            NetLocation = ""        # NetLocation > 1, 2, 3 ...
+            FourWire = ""           # FourWire > 1-2
+            
+            NetList = {}             # { ProductPlug.PinName: NetNumber ) }
+            NetNames = {}            # { NetNumber: NetName }
+            TestcablesToOutlets = {} # { BraidMptSide: Outlet }
+            TestcablesToProduct = {} # { BraidMptSide: ProductPlug }
 
+            MappedNetNumbers = [] # [1, 2, 3 ...]
+            UsedNetNames = []     # [Net1_Power, Net2_Rtn ...]
+
+            Outlets = {}
+            Outlets["A1"] = 0
+            Outlets["B1"] = 50
+            Outlets["C1"] = 100
+            Outlets["A2"] = 150
+            Outlets["B2"] = 200
+            Outlets["C2"] = 250
+            Outlets["A3"] = 300
+            Outlets["B3"] = 350
+            Outlets["C3"] = 400
+            Outlets["A4"] = 450
+            Outlets["B4"] = 500
+            Outlets["C4"] = 550
+            Outlets["A5"] = 600
+            Outlets["B5"] = 650
+            Outlets["C5"] = 700
+            Outlets["A6"] = 750
+            Outlets["B6"] = 800
+            Outlets["C6"] = 850
+            Outlets["A7"] = 900
+            Outlets["B7"] = 950
+            Outlets["C7"] = 1000
+            Outlets["A8"] = 1050
+            Outlets["B8"] = 1100
+            Outlets["C8"] = 1150
+
+            # LOAD CSV FILES
+            netlist = self.sc.load_csv(path+"/netlist.csv")                                     # CONNAME    PINNAME   NETNUM
+            netnames = self.sc.load_csv(path+"/netnames.csv")                                   # NETNUM     NETNAME
+            testcables_to_outlets = self.sc.load_csv(path+"/testcables_to_outlets.csv", 'r')    # TESTCABLE  OUTLET
+            testcables_to_product = self.sc.load_csv(path+"/testcables_to_product.csv", 'r')    # TESTCABLE  PRODUCT
+
+            # TEST LOADED CSV FILES
+            # netlist
+            for row in netlist[1:]:
+                # get values
+                ProductPlug = row[0]
+                PinName = row[1]
+                NetNumber = row[2]
+
+                # test each values
+                if ProductPlug == "":
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nMissing connector name")
+                
+                if PinName == "":
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nMissing pin name")
+                
+                if NetNumber == "":
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nMissing net number")
+                try:
+                    NetNumber = int(NetNumber)
+                except:
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nNet number: "+NetNumber+" is not a numerical value")
+
+                # add to dictionary
+                if not ProductPlug+"."+PinName in NetList:
+                    NetList[ProductPlug+"."+PinName] = NetNumber
+                    MappedNetNumbers.append(NetNumber)
+                else:
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nLocation: "+ProductPlug+"."+PinName+" is not unique")
+
+            # netnames
+            for row in netnames[1:]:
+                # get values
+                NetNumber = row[0]
+                NetName = row[1]
+
+                # test each values
+                if NetNumber == "":
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nMissing net number")
+                try:
+                    NetNumber = int(NetNumber)
+                except:
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+NetNumber+" is not a numerical value")
+                if not NetNumber in MappedNetNumbers:
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+NetNumber+" is mapped in netlist.csv")
+                
+                if NetName == "":
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nMissing net name")
+                if NetName in UsedNetNames:
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet name: "+NetName+" is not unique")
+                else:
+                    UsedNetNames.append(NetName)
+                
+                # add to dictionary
+                if not NetNumber in NetNames:
+                    NetNames[NetNumber] = NetName
+                else:
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+NetNumber+" is not unique")
+
+            # testcables_to_outlets
+            for row in testcables_to_outlets[1:]:
+                # get values
+                BraidMptSide = row[0]
+                Outlet = row[1]
+
+                # test each values
+                if BraidMptSide == "":
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nMissing test cable number")
+                try:
+                    BraidMptSide = int(BraidMptSide)
+                except:
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nTest cable number: "+BraidMptSide+" is not a numerical value")
+                
+                if not Outlet in Outlets:
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nInvalid outlet number: "+Outlet)
+
+                # add to dictionary
+                if not BraidMptSide in TestcablesToOutlets:
+                    TestcablesToOutlets[BraidMptSide] = Outlet
+                else:
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nTest cable number: "+BraidMptSide+" is not unique")
+
+            # testcables_to_product
+            for row in testcables_to_product[1:]:
+                # get values
+                BraidMptSide = row[0]
+                ProductPlug = row[1]
+
+                # test each values
+                if BraidMptSide == "":
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nMissing test cable number")
+                try:
+                    BraidMptSide = int(BraidMptSide)
+                except:
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidMptSide+" is not a numerical value")
+                if not BraidMptSide in TestcablesToOutlets:
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidMptSide+" is mapped in testcables_to_outlets.csv")
+
+                # add to dictionary
+                if not BraidMptSide in TestcablesToProduct:
+                    TestcablesToProduct[BraidMptSide] = ProductPlug
+                else:
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidMptSide+" is not unique")
+            """
             # test loaded files for errors
             # netlist
             Netlist = {} # {ConnectorName.PinName: NetNumber} e.g. {P1.25: 17}
@@ -171,7 +320,7 @@ class main:
 
             # run script
             self.sc.run_script(path+"/script.txt", functions)
-
+        """
         # restart
         self.sc.restart()
 
