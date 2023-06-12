@@ -127,6 +127,13 @@ class main:
                     return
 
             # testcables_to_product
+            TestcablesToProduct = {} # {57.1: P2}
+            for row in testcables_to_product[1:]:
+                TestCable = row[0]
+                ConnectorName = row[1]
+                if not TestCable in TestcablesToProduct:
+                    TestcablesToProduct[TestCable] = ConnectorName
+                    
 
             # load maps
             maps = {}
