@@ -1,2 +1,4 @@
-MPT Programs --> C:\Users\mig_rprod\Desktop\New Tools Testing ground/MPT Programs
-Maps Location --> C:\Users\mig_rprod\Desktop\New Tools Testing ground/Maps
+var1 --> JDF
+var2 --> 8E87
+var3 --> KDJ
+var4 --> val
