@@ -13,12 +13,13 @@ FourWire = ""           # FourWire > 1-2
 NetList = {}             # { ProductPlug.PinName: NetNumber ) }
 NetNames = {}            # { NetNumber: NetName }
 TestcablesToOutlets = {} # { BraidMptSide: Outlet }
-TestcablesToProduct = {} # { BraidMptSide: ProductPlug }
+TestcablesToProduct = {} # { BraidProductSide: ProductPlug }
 Maps = {}                # { BraidMptSide: [ GlobalPoint, BraidProductSide, PinName, FourWire ] }
 UsedNetNumbers = {}      # { NetNumber: 1, 2, 3 ... }
 FourWires = {}           # { BraidProductSide: 1 or 2 }
 
 MappedNetNumbers = [] # [ 1, 2, 3 ... ]
 UsedNetNames = []     # [ Net1_Power, Net2_Rtn ... ]
+NetLocations = {}     # { NetNumber: NetLocation }
 
 csv_file = []   # [(ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire), ]

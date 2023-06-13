@@ -78,11 +78,11 @@ class main:
             TestcablesToOutlets = {} # { BraidMptSide: Outlet }
             TestcablesToProduct = {} # { BraidMptSide: ProductPlug }
             Maps = {}                # { BraidMptSide: [ GlobalPoint, PinName, FourWire ] }
-            UsedNetNumbers = {}      # { NetNumber: 1, 2, 3 ... }
             FourWires = {}           # { BraidProductSide: 1 or 2 }
 
             MappedNetNumbers = [] # [ 1, 2, 3 ... ]
             UsedNetNames = []     # [ Net1_Power, Net2_Rtn ... ]
+            NetLocations = {}     # { NetNumber: NetLocation }
 
             csv_file = []   # [(ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire), ]
 
@@ -223,7 +223,7 @@ class main:
                     TestcablesToProduct[BraidProductSide] = ProductPlug
                 else:
                     self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidProductSide+" is not unique")
-            
+
             # LOAD MAPS
             for BraidMptSide, Outlet in TestcablesToOutlets.items(): # Maps = { BraidMptSide: [ GlobalPoint, BraidProductSide, PinName ] }
                 BraidMptSide = str(BraidMptSide)
@@ -248,7 +248,10 @@ class main:
                             self.sc.fatal_error("in file: "+MapPath+"\nMissing pin name")
 
                         # add to dictionary
-                        Maps[BraidMptSide] = [GlobalPoint, BraidProductSide, PinName]
+                        if not BraidMptSide in Maps:
+                            Maps[BraidMptSide] = [[GlobalPoint, BraidProductSide, PinName]]
+                        else:
+                            Maps[BraidMptSide].append([GlobalPoint, BraidProductSide, PinName])
 
             for BraidMptSide, MapRow in Maps.items():
                 BraidProductSide = BraidMptSide+"."+row[1]
@@ -260,23 +263,23 @@ class main:
                     else:
                         self.sc.fatal_error("in file: "+self.maps+"/"+BraidMptSide+".csv\nPoint "+BraidProductSide+" appears more than twice!")
 
-            # GENERATE CSV FILE
-            for BraidMptSide, MapRow in Maps.items(): # [(ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire), ]
-                # calculate all values
-                ProductPlug = TestcablesToProduct[BraidMptSide]
-                PinName = MapRow[1]
+            # CREATE CSV FILE
+            for BraidMptSide, MapRow in Maps.items(): # # Maps = { BraidMptSide: [ GlobalPoint, BraidProductSide, PinName ] }
+                GlobalPoint = MapRow[0]
+                BraidProductSide = MapRow[1]
+                ProductPlug = TestcablesToProduct[BraidProductSide]
+                PinName = MapRow[2]
                 GlobalPoint = MapRow[0] + Outlets[TestcablesToOutlets[BraidMptSide]]
                 NetNumber = NetList[ProductPlug+"."+PinName]
                 FourWire = FourWires[BraidProductSide]
-                if not NetNumber in UsedNetNumbers:
-                    UsedNetNumbers[NetNumber] = 1
+                if not NetLocation in NetLocations:
+                    NetLocations[NetLocation] = 1
                 else:
                     if FourWire == 1:
-                        UsedNetNumbers[NetNumber] += 1
-                NetLocation = UsedNetNumbers[NetNumber]
+                        NetLocations[NetNumber] += 1
+                NetLocation = NetLocations[NetNumber]
                 NetName = NetNames[NetNumber]
 
-                # add to scv file
                 csv_file.append((ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire))
 
             # save scv file
