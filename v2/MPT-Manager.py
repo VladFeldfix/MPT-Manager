@@ -1,6 +1,5 @@
 from SmartConsole import *
 import os
-import subprocess
 
 class main:
     # constructor
