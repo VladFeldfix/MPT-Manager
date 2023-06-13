@@ -77,9 +77,14 @@ class main:
             NetNames = {}            # { NetNumber: NetName }
             TestcablesToOutlets = {} # { BraidMptSide: Outlet }
             TestcablesToProduct = {} # { BraidMptSide: ProductPlug }
+            Maps = {}                # { BraidMptSide: [ GlobalPoint, PinName, FourWire ] }
+            UsedNetNumbers = {}      # { NetNumber: 1, 2, 3 ... }
+            FourWires = {}           # { BraidProductSide: 1 or 2 }
 
-            MappedNetNumbers = [] # [1, 2, 3 ...]
-            UsedNetNames = []     # [Net1_Power, Net2_Rtn ...]
+            MappedNetNumbers = [] # [ 1, 2, 3 ... ]
+            UsedNetNames = []     # [ Net1_Power, Net2_Rtn ... ]
+
+            csv_file = []   # [(ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire), ]
 
             Outlets = {}
             Outlets["A1"] = 0
@@ -108,10 +113,10 @@ class main:
             Outlets["C8"] = 1150
 
             # LOAD CSV FILES
-            netlist = self.sc.load_csv(path+"/netlist.csv")                                     # CONNAME    PINNAME   NETNUM
-            netnames = self.sc.load_csv(path+"/netnames.csv")                                   # NETNUM     NETNAME
-            testcables_to_outlets = self.sc.load_csv(path+"/testcables_to_outlets.csv", 'r')    # TESTCABLE  OUTLET
-            testcables_to_product = self.sc.load_csv(path+"/testcables_to_product.csv", 'r')    # TESTCABLE  PRODUCT
+            netlist = self.sc.load_csv(path+"/netlist.csv")                                # CONNAME    PINNAME   NETNUM
+            netnames = self.sc.load_csv(path+"/netnames.csv")                              # NETNUM     NETNAME
+            testcables_to_outlets = self.sc.load_csv(path+"/testcables_to_outlets.csv")    # TESTCABLE  OUTLET
+            testcables_to_product = self.sc.load_csv(path+"/testcables_to_product.csv")    # TESTCABLE  PRODUCT
 
             # TEST LOADED CSV FILES
             # netlist
@@ -197,130 +202,88 @@ class main:
             # testcables_to_product
             for row in testcables_to_product[1:]:
                 # get values
-                BraidMptSide = row[0]
+                BraidProductSide = row[0]
                 ProductPlug = row[1]
 
                 # test each values
-                if BraidMptSide == "":
+                if BraidProductSide == "":
                     self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nMissing test cable number")
+                
+                BraidMptSide = BraidProductSide.split(".")
+                BraidMptSide = BraidMptSide[0]
                 try:
                     BraidMptSide = int(BraidMptSide)
                 except:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidMptSide+" is not a numerical value")
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidProductSide+" is not a valid value")
                 if not BraidMptSide in TestcablesToOutlets:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidMptSide+" is mapped in testcables_to_outlets.csv")
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidMptSide+" is not mapped in testcables_to_outlets.csv")
 
                 # add to dictionary
-                if not BraidMptSide in TestcablesToProduct:
-                    TestcablesToProduct[BraidMptSide] = ProductPlug
+                if not BraidProductSide in TestcablesToProduct:
+                    TestcablesToProduct[BraidProductSide] = ProductPlug
                 else:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidMptSide+" is not unique")
-            """
-            # test loaded files for errors
-            # netlist
-            Netlist = {} # {ConnectorName.PinName: NetNumber} e.g. {P1.25: 17}
-            for row in netlist[1:]:
-                ConnectorName = row[0]
-                PinName = row[1]
-                NetNumber = row[2]
-                ConnectorNameAndPin = ConnectorName+"."+PinName
-                if ConnectorName == "":
-                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nMissing connector name")
-                    return
-                if PinName == "":
-                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nMissing pin name")
-                    return
-                if NetNumber == "":
-                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nMissing net number")
-                    return
-                try:
-                    NetNumber = int(NetNumber)
-                except:
-                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nNet number: "+NetNumber+" is a numerical value")
-                    return
-                if not ConnectorNameAndPin in Netlist:
-                    Netlist[ConnectorNameAndPin] = NetNumber
-                else:
-                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nLocation: "+ConnectorNameAndPin+" is not unique")
-                    return
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidProductSide+" is not unique")
             
-            # netnames
-            NetNames = {} # {1: NET1_POWER}
-            used_names = []
-            for row in netnames[1:]:
-                NetNumber = row[0]
-                NetName = row[1]
-                if not NetNumber in NetNames:
-                    NetNames[NetNumber] = NetName
+            # LOAD MAPS
+            for BraidMptSide, Outlet in TestcablesToOutlets.items(): # Maps = { BraidMptSide: [ GlobalPoint, BraidProductSide, PinName ] }
+                BraidMptSide = str(BraidMptSide)
+                MapPath = self.maps+"/"+BraidMptSide+".csv"
+                MapCsv = self.sc.load_csv(MapPath)
+                for row in MapCsv[1:]:
+                    # get values
+                    GlobalPoint = row[0]
+                    if row[1] != "":
+                        BraidProductSide = BraidMptSide+"."+row[1]
+                        PinName = row[2]
+
+                        # test each values
+                        if GlobalPoint == "":
+                            self.sc.fatal_error("in file: "+MapPath+"\nMissing global point")
+                        try:
+                            GlobalPoint = int(GlobalPoint)
+                        except:
+                            self.sc.fatal_error("in file: "+MapPath+"\nGlobal point: "+GlobalPoint+" is not a numerical value")
+                        
+                        if PinName == "":
+                            self.sc.fatal_error("in file: "+MapPath+"\nMissing pin name")
+
+                        # add to dictionary
+                        Maps[BraidMptSide] = [GlobalPoint, BraidProductSide, PinName]
+
+            for BraidMptSide, MapRow in Maps.items():
+                BraidProductSide = BraidMptSide+"."+row[1]
+                if not BraidProductSide in FourWires:
+                    FourWires[BraidProductSide] = 1
                 else:
-                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+NetNumber+" is not unique")
-                    return
-                if not NetName in used_names:
-                    used_names.append(NetName)
+                    if FourWires[BraidProductSide] == 1:
+                        FourWires[BraidProductSide] = 2
+                    else:
+                        self.sc.fatal_error("in file: "+self.maps+"/"+BraidMptSide+".csv\nPoint "+BraidProductSide+" appears more than twice!")
+
+            # GENERATE CSV FILE
+            for BraidMptSide, MapRow in Maps.items(): # [(ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire), ]
+                # calculate all values
+                ProductPlug = TestcablesToProduct[BraidMptSide]
+                PinName = MapRow[1]
+                GlobalPoint = MapRow[0] + Outlets[TestcablesToOutlets[BraidMptSide]]
+                NetNumber = NetList[ProductPlug+"."+PinName]
+                FourWire = FourWires[BraidProductSide]
+                if not NetNumber in UsedNetNumbers:
+                    UsedNetNumbers[NetNumber] = 1
                 else:
-                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet name: "+NetName+" is not unique")
-                    return
+                    if FourWire == 1:
+                        UsedNetNumbers[NetNumber] += 1
+                NetLocation = UsedNetNumbers[NetNumber]
+                NetName = NetNames[NetNumber]
 
-            # testcables_to_outlets
-            TestcablesToOutlets = {} # {57A: A1}
-            for row in testcables_to_outlets[1:]:
-                TestCable = row[0]
-                Outlet = row[1]
-                if not TestCable in TestcablesToOutlets:
-                    TestcablesToOutlets[TestCable] = Outlet
-                else:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nTest cable: "+TestCable+" is not unique")
-                    return
-                if not Outlet in Outlets:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nIvalid outlet: "+Outlet)
-                    return
+                # add to scv file
+                csv_file.append((ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire))
 
-            # testcables_to_product
-            TestcablesToProduct = {} # {57.1: P2}
-            for row in testcables_to_product[1:]:
-                TestCable = row[0]
-                ConnectorName = row[1]
-                if not TestCable in TestcablesToProduct:
-                    TestcablesToProduct[TestCable] = ConnectorName
-                    
-
-            # load maps
-            maps = {}
-
-            # create csv file
-            csv_file = []
-            for GlobalPoint, data in maps.items():
-                # maps -> { GlobalPoint: (TestCable 57, PinName 10, FourWire 1) }
-                # ConnectorName
-                ConnectorName = ""
-
-                # PinName
-                PinName = ""
-
-                # GlobalPoint
-                GlobalPoint = ""
-
-                # NetNumber
-                NetNumber = ""
-
-                # NetLocation
-                NetLocation = ""
-
-                # NetName
-                NetName = ""
-
-                # FourWire
-                FourWire = ""
-                
-                # add new line
-                csv_file.append((ConnectorName, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire))
-            
             # save scv file
             self.sc.save_csv(path+"/"+part_number+".csv", csv_file)
 
             # run script
-            self.sc.run_script(path+"/script.txt", functions)
-        """
+            #self.sc.run_script(path+"/script.txt", functions)
         # restart
         self.sc.restart()
 
