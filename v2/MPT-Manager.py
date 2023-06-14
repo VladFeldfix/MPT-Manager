@@ -25,6 +25,8 @@ class main:
         # get part_number
         part_number = self.sc.input("Insert PART NUMBER").upper()
         path = self.programs+"/"+part_number
+        self.product_part_number = part_number
+        self.path = path
 
         # for new folder
         if not os.path.isdir(path):
@@ -75,6 +77,7 @@ class main:
             NetList = {}             # { ProductPlug.PinName: NetNumber ) }
             NetNames = {}            # { NetNumber: NetName }
             TestcablesToOutlets = {} # { BraidMptSide: Outlet }
+            OutletsToTestcables = {} # { Outlet: BraidMptSide }
             TestcablesToProduct = {} # { BraidMptSide: ProductPlug }
             Maps = {}                # { BraidMptSide: [ GlobalPoint, PinName, FourWire ] }
             FourWires = {}           # { BraidProductSide: 1 or 2 }
@@ -82,8 +85,10 @@ class main:
             MappedNetNumbers = [] # [ 1, 2, 3 ... ]
             UsedNetNames = []     # [ Net1_Power, Net2_Rtn ... ]
             NetLocations = {}     # { NetNumber: NetLocation }
+            TestCableSizes = {}   # { BraidMptSide: 50, 100, 150 ... }
 
             csv_file = []   # [(ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire), ]
+            EmptyNets = 999
 
             Outlets = {}
             Outlets["A1"] = 0
@@ -225,14 +230,13 @@ class main:
 
             # LOAD MAPS
             for BraidMptSide, Outlet in TestcablesToOutlets.items(): # Maps = { BraidMptSide: [ GlobalPoint, BraidProductSide, PinName ] }
-                BraidMptSide = str(BraidMptSide)
-                MapPath = self.maps+"/"+BraidMptSide+".csv"
+                MapPath = self.maps+"/"+str(BraidMptSide)+".csv"
                 MapCsv = self.sc.load_csv(MapPath)
                 for row in MapCsv[1:]:
                     # get values
                     GlobalPoint = row[0]
                     if row[1] != "":
-                        BraidProductSide = BraidMptSide+"."+row[1]
+                        BraidProductSide = str(BraidMptSide)+"."+row[1]
                         PinName = row[2]
 
                         # test each values
@@ -251,42 +255,374 @@ class main:
                             Maps[BraidMptSide] = [[GlobalPoint, BraidProductSide, PinName]]
                         else:
                             Maps[BraidMptSide].append([GlobalPoint, BraidProductSide, PinName])
-
-            for BraidMptSide, MapRow in Maps.items():
-                BraidProductSide = BraidMptSide+"."+row[1]
-                if not BraidProductSide in FourWires:
-                    FourWires[BraidProductSide] = 1
-                else:
-                    if FourWires[BraidProductSide] == 1:
-                        FourWires[BraidProductSide] = 2
+                    
+                    if not BraidMptSide in TestCableSizes:
+                        TestCableSizes[BraidMptSide] = 1
                     else:
-                        self.sc.fatal_error("in file: "+self.maps+"/"+BraidMptSide+".csv\nPoint "+BraidProductSide+" appears more than twice!")
+                        TestCableSizes[BraidMptSide] += 1
+            
+            for BraidMptSide, Qty in TestCableSizes.items():
+                if Qty % 50 != 0:
+                    print(Qty)
+                    self.sc.fatal_error("Map for test cable #"+str(BraidMptSide)+" has invalid number of global points. Must be 50, 100, 150... 1200")
+
+            # fourwire detection
+            for BraidMptSide, MapRows in Maps.items():
+                for MapRow in MapRows:
+                    PinName = MapRow[2]
+                    BraidProductSide = MapRow[1]
+                    if not BraidProductSide+"."+PinName in FourWires:
+                        FourWires[BraidProductSide+"."+PinName] = 1
+                    else:
+                        if FourWires[BraidProductSide+"."+PinName] == 1:
+                            FourWires[BraidProductSide+"."+PinName] = 2
+                        else:
+                            self.sc.fatal_error("in file: "+self.maps+"/"+str(BraidMptSide)+".csv\nPoint "+BraidProductSide+" appears more than twice!")
 
             # CREATE CSV FILE
-            for BraidMptSide, MapRow in Maps.items(): # # Maps = { BraidMptSide: [ GlobalPoint, BraidProductSide, PinName ] }
-                GlobalPoint = MapRow[0]
-                BraidProductSide = MapRow[1]
-                ProductPlug = TestcablesToProduct[BraidProductSide]
-                PinName = MapRow[2]
-                GlobalPoint = MapRow[0] + Outlets[TestcablesToOutlets[BraidMptSide]]
-                NetNumber = NetList[ProductPlug+"."+PinName]
-                FourWire = FourWires[BraidProductSide]
-                if not NetLocation in NetLocations:
-                    NetLocations[NetLocation] = 1
-                else:
-                    if FourWire == 1:
-                        NetLocations[NetNumber] += 1
-                NetLocation = NetLocations[NetNumber]
-                NetName = NetNames[NetNumber]
+            write = True
+            self.sc.print("----------------------------------- CSV File --------------------------------------")
+            for BraidMptSide, MapRows in Maps.items(): # # Maps = { BraidMptSide: [ GlobalPoint, BraidProductSide, PinName ] }
+                for MapRow in MapRows:
+                    GlobalPoint = MapRow[0]
+                    BraidProductSide = MapRow[1]
+                    if BraidProductSide in TestcablesToProduct:
+                        ProductPlug = TestcablesToProduct[BraidProductSide]
+                        PinName = MapRow[2]
+                        GlobalPoint = MapRow[0] + Outlets[TestcablesToOutlets[BraidMptSide]]
+                        if ProductPlug+"."+PinName in NetList:
+                            NetNumber = NetList[ProductPlug+"."+PinName]
+                            NetName = NetNames[NetNumber]
+                        else:
+                            EmptyNets += 1
+                            NetNumber = EmptyNets
+                            NetName = "NC_"+ProductPlug+"."+PinName
+                    
+                        FourWire = FourWires[BraidProductSide+"."+PinName]
+                        if not NetNumber in NetLocations:
+                            NetLocations[NetNumber] = 1
+                        else:
+                            if FourWire == 1:
+                                NetLocations[NetNumber] += 1
+                            else:
+                                if write:
+                                    NetLocations[NetNumber] += 1
+                        NetLocation = NetLocations[NetNumber]
 
-                csv_file.append((ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire))
+                        if FourWire == 1:
+                            write = True
+                        else:
+                            write = not write
+                            GlobalPoint -= 1
+                        
+                        if write:
+                            csv_file.append((ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire))
+                            self.sc.print(str(ProductPlug)+", "+str(PinName)+", "+str(GlobalPoint)+", "+str(NetNumber)+", "+str(NetLocation)+", "+str(NetName)+", "+str(FourWire))
 
-            # save scv file
+            # SAVE CSV FILE
             self.sc.save_csv(path+"/"+part_number+".csv", csv_file)
 
-            # run script
-            #self.sc.run_script(path+"/script.txt", functions)
+            # RUN SCRIPT
+            self.sc.print("\n----------------------------------- TXT File --------------------------------------")
+            functions = {}
+            functions["START"] = (self.start, ("PARTNUMBER", "PRODUCT_DESCRIPTION", "DRAWING_PN", "DRAWING_REV"))
+            functions["TEST_CONTACT"] = (self.test_conductor, ())
+            functions["TEST_INSULATION"] = (self.test_isolation, ())
+            functions["TEST_HIPOT"] = (self.test_hipot, ())
+            functions["TEST_BUTTON"] = (self.test_button, ("BTNNAME", "NCNO", "POINTS"))
+            functions["TEST_SWITCH"] = (self.test_switch, ("SWNAME", "POSITION", "POINTS"))
+            functions["TEST_ONOFF_SWITCH"] = (self.test_onoffswitch, ("SWNAME", "POINTS"))
+            functions["TEST_LED"] = (self.test_led, ("LEDNAME", "NET1", "NET2", "COLOR"))
+            functions["TEST_COAX"] = (self.test_coax_cable, ("COAXNAME", "SIGNAL", "BRAID"))
+            functions["TEST_RESISTOR"] = (self.test_resistor, ("RESNAME", "OHM", "NET1", "NET2"))
+            functions["TEST_CAPACITOR"] = (self.test_capacitor, ("CAPNAME", "MIN", "MAX", "NET1", "NET2", "DICHARGE"))
+            functions["TEST_DIMMER"] = (self.test_dimmer, ("DIMNAME", "OHM", "POINT_A", "POINT_B"))
+            functions["TEST_CNV"] = (self.test_cnv, ("CNV_NAME", "_24vMIN", "_24vMAX", "_5vMIN", "_5vMAX", "POINT_1", "POINT_2", "POINT_3", "POINT_4"))
+            functions["END"] = (self.end, ())
+            self.Script = []
+            self.sc.run_script(path+"/script.txt", functions)
+
+            # CREATE AN HTML FILE
+            OutletsToTestcables = self.sc.invert_database(TestcablesToOutlets)
+            htmlfile.write("<html>\n")
+            for Outlet, FirstPin in Outlets.items():
+                if Outlet in OutletsToTestcables:
+                    BraidMptSide = OutletsToTestcables[Outlet]
+                    Size = TestCableSizes[BraidMptSide]
         # restart
         self.sc.restart()
+
+    # SCRIPT FUNCTIONS
+    def start(self, arguments):
+        # get variables
+        PARTNUMBER = arguments[0]
+        PRODUCT_DESCRIPTION = arguments[1]
+        DRAWING_PN = arguments[2]
+        DRAWING_REV = arguments[3]
+
+        # generate code
+        self.write("/************************************")
+        self.write("")
+        self.write("PCBA Part Number: "+PARTNUMBER)
+        self.write("Written by: Evgeny Azov from: FLEX For RAFAEL R&D")
+        self.write("POC on Rafael:FullSurname.FirstName'sFirstLetter.UnitNumber")
+        self.write("Machine Type: MPT5000")
+        self.write("Machine Software Version: 4.4.6.60")
+        self.write("Date: "+self.sc.today())
+        self.write("SW part Number: "+ PARTNUMBER)
+        self.write("According to TRD No.: PS-39-756948 rev.: L")
+        self.write("")
+        self.write("************************************/")
+        self.write('//GET HTML')
+        self.write('LoadHTML("'+PARTNUMBER+'.html");')
+        self.write('//INFO')
+        self.write("PrintLn (4,time); Print(4,"   ");Print(4,date);")
+        self.write('PrintLn (4," *****  Flex  *****  ");')
+        self.write('PrintLn (4," Customer: RAFAEL    ");')
+        self.write('PrintLn (4," Ass-y name: '+PRODUCT_DESCRIPTION+' ");')
+        self.write('PrintLn (4," Ass-y PN: '+PARTNUMBER+' ");')
+        self.write('PrintLn (4," Print PN: '+PARTNUMBER+' ");')
+        self.write('PrintLn (4," Prog name: '+PARTNUMBER+' ");')
+        self.write('PrintLn (4," Wire Diagram: '+DRAWING_PN+' REV.: '+DRAWING_REV+' ");')
+        self.write('PrintLn (4," TRD: PS-39-756948 rev.: L");')
+        self.write('//GET OPERATOR NAME AND SERIAL NUMBER')
+        self.write('PrintLn (4,"");')
+        self.write('Print(CON+DSK,"Operator Name: ");')
+        self.write('Input("Enter Operator Name: ");')
+        self.write('PrintLn(CON+DSK, TEXT);')
+        self.write('PrintLn (4,"");')
+        self.write('SetPrintLog(ON =ALL,CON);')
+        self.write('Print(CON+DSK,"Serial Number: ");')
+        self.write('Input("Enter Serial Number: ");')
+        self.write('PrintLn(CON+DSK, TEXT);')
+        self.write('PrintLn (4,"");')
+        self.write('SetPrintLog(ON =ALL,CON);')
+        self.write('//LOAD CALIBRATION FILE')
+        self.write('AdapterCal("C:/MPT/Systems.cal");')
+
+    def test_conductor(self, arguments):
+        self.write('//TEST CONDUCTOR 2-wire')
+        self.write('PrintLn (4,"TEST CONDUCTOR");')
+        self.write('PrintLn (4," - 2 wire -");')
+        self.write('SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);')
+        self.write('Continuity(all);')
+
+    def test_isolation(self, arguments):
+        self.write('//TEST INSULATION')
+        self.write('PrintLn (4,"TEST INSULATION");')
+        self.write('SetInsulation(LV, Pass > 100 KOhms, I = Auto);')
+        self.write('Insulation(all);')
+
+    def test_hipot(self, arguments):
+        self.write('//TEST HI-POT')
+        self.write('If(PASSED){')
+        self.write('\tPrompt("WARNING! Hi voltage test is about to start. Close the glass dome before continuation");')
+        self.write('\tPrintLn (4,"TEST  HiPot DC");')
+        self.write('\tSetHiPot(DC, V = 500 Volts, R >100 MOhm,Dwell = 1S, RampUpRate=1000);')
+        self.write('\tHiPotDC(ALL);')
+        self.write('}')
+
+    def test_button(self, arguments):
+        BTNNAME = arguments[0]
+        NCNO = arguments[1]
+        POINTS = arguments[2]
+        POINTS = POINTS.replace("[","(").replace("]","),").replace("-",",")
+        tmp = POINTS.replace("(","").replace(")","")
+        tmp = tmp.split(",")
+        POINT1 = tmp[0]
+        POINT2 = tmp[1]
+
+        self.write('//TEST BUTTON')
+        self.write('PrintLn (4,"TEST BUTTON '+BTNNAME+'");')
+        if NCNO == "NO":
+            self.write('PrintLn (CON+DSK, "PRESS AND RELEASE BUTTON '+BTNNAME+'");')
+            self.write('WaitForCont('+POINT1+','+POINT2+');')
+            self.write('Continuity('+POINTS+');')
+            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+        elif NCNO == "NC":
+            self.write('PrintLn (CON+DSK, "PRESS AND RELEASE BUTTON '+BTNNAME+'");')
+            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+            self.write('Insulation('+POINTS+');')
+            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+        elif NCNO == "SWITCH-NO":
+            self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+'");')
+            self.write('WaitForCont('+POINT1+','+POINT2+');')
+            self.write('Continuity('+POINTS+');')
+            self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+' AGAIN");')
+            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+        elif NCNO == "SWITCH-NC":
+            self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+'");')
+            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+            self.write('Insulation('+POINTS+');')
+            self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+' AGAIN");')
+            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+
+    def test_switch(self, arguments):
+        SWNAME = arguments[0]
+        POSITION = arguments[1]
+        POINTS = arguments[2]
+        POINTS = POINTS.replace("[","(").replace("]","),").replace("-",",")
+        tmp = POINTS.replace("(","").replace(")","")
+        tmp = tmp.split(",")
+        POINT1 = tmp[0]
+        POINT2 = tmp[1]
+        self.write('//TEST SWITCH')
+        self.write('PrintLn (4,"TEST SWITCH '+SWNAME+'");')
+        self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION '+POSITION+'");')
+        self.write('WaitForCont('+POINT1+','+POINT2+');')
+        self.write('Continuity('+POINTS+');')
+    
+    def test_onoffswitch(self, arguments):
+        SWNAME = arguments[0]
+        POINTS = arguments[1]
+        POINTS = POINTS.replace("[","(").replace("]","),").replace("-",",")
+        tmp = POINTS.replace("(","").replace(")","")
+        tmp = tmp.split(",")
+        POINT1 = tmp[0]
+        POINT2 = tmp[1]
+        self.write('//TEST SWITCH')
+        self.write('PrintLn (4,"TEST SWITCH '+SWNAME+' ON");')
+        self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION ON");')
+        self.write('WaitForCont('+POINT1+','+POINT2+');')
+        self.write('Continuity('+POINTS+');')
+        self.write('PrintLn (4,"TEST SWITCH '+SWNAME+' OFF");')
+        self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION OFF");')
+        self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+
+    def test_led(self, arguments):
+        LEDNAME = arguments[0]
+        NET1 = arguments[1]
+        NET2 = arguments[2]
+        COLOR = arguments[3]
+
+        self.write('//TEST LED')
+        self.write('PrintLn (4,"TEST LED '+LEDNAME+'");')
+        self.write('SetPS(V = 5 Volts, I = 0.01 Amps);')
+        self.write('PowerOn(('+NET1+'),('+NET2+'));')
+        self.write('Confirm("IS LED '+LEDNAME+' '+COLOR+'?");')
+        self.write('PSV();')
+        self.write('PSI();')
+        self.write('PowerOff();')
+
+    def test_coax_cable(self, arguments):
+        COAXNAME = arguments[0]
+        SIGNAL = arguments[1]
+        BRAID = arguments[2]
+
+        SIGNAL = SIGNAL.split("-")
+        BRAID = BRAID.split("-")
+        self.write('//TEST COAX CABLE')
+        self.write('PrintLn (4,"TEST COAX CABLE '+COAXNAME+'");')
+        self.write('Lua(')
+        self.write('\t -- Test Signal')
+        self.write('\tprinttodevices(DSK + CON, "\n")')
+        self.write('\t ClrAllTest(false)')
+        self.write('\t ClrAllCom(false)')
+        self.write('\t SetTest(false,"'+SIGNAL[0]+'")')
+        self.write('\t SetCom(false,"'+SIGNAL[1]+'")')
+        self.write('\t printtodevices(DSK + CON, "Measure signal resistance")')
+        self.write('\t DoContinuity()')
+        self.write('\t signal_resistance = lastresmeasurement')
+        self.write('\t -- Test braid')
+        self.write('\t ClrAllTest(false)')
+        self.write('\t ClrAllCom(false)')
+        self.write('\t SetTest(false,"'+BRAID[0]+'")')
+        self.write('\t SetCom(false,"'+BRAID[1]+'")')
+        self.write('\t printtodevices(DSK + CON, "Measure braid resistance")')
+        self.write('\t DoContinuity()')
+        self.write('\t braid_resistance = lastresmeasurement')
+        self.write('\t -- Compare')
+        self.write('\t if signal_resistance > braid_resistance then')
+        self.write('\t \t printtodevices(DSK + CON, signal_resistance, " > " ,braid_resistance)')
+        self.write('\t \t printtodevices(DSK + CON, "PASS")')
+        self.write('\t else')
+        self.write('\t \t printtodevices(DSK + CON, "FAIL")')
+        self.write('\t \t SetFailedFlag()')
+        self.write('\t end')
+        self.write('\tprinttodevices(DSK + CON, "\n\n")')
+        self.write(')')
+
+    def test_resistor(self, arguments):
+        RESNAME = arguments[0]
+        OHM = arguments[1]
+        NET1 = arguments[2]
+        NET2 = arguments[3]
+
+        self.write('//TEST RESISTOR')
+        self.write('PrintLn (4,"TEST '+RESNAME+' ('+OHM+'Ohm)");')
+        self.write('PrintLn (4," - 2 wire -");')
+        self.write('SetResistance(LV, Pass = '+OHM+' Ohms +- 2%, I = Auto);')
+        self.write('Resistor ('+NET1+', '+NET2+');')
+        
+    def test_capacitor(self, arguments):
+        CAPNAME = arguments[0]
+        MIN = arguments[1]
+        MAX = arguments[2]
+        NET1 = arguments[3]
+        NET2 = arguments[4]
+        DICHARGE = arguments[5]
+
+        if DICHARGE == "Y":
+            self.write('//DISCHARGE CAPACITOR')
+            self.write('ClrAllTestCom();')
+            self.write('SetCom('+NET1+', '+NET2+');')
+            self.write('Delay(500);')
+            self.write('ClrAllTestCom();')
+
+        self.write('//TEST CAPACITOR')
+        self.write('PrintLn (4,"TEST CAPACITOR '+CAPNAME+'");')
+        self.write('SetCAP(Pass = '+MIN+' pF, '+MAX+' pF);')
+        self.write('Cap('+NET1+', '+NET2+');')
+
+    def test_dimmer(self, arguments): # TEST_DIMMER POT1 106000 P3.11 P1.34
+        DIMNAME = arguments[0]
+        OHM = arguments[1]
+        POINT_A = arguments[2]
+        POINT_B = arguments[3]
+
+        self.write('//TEST DIMMER')
+        self.write('PrintLn (4,"TEST DIMMER '+DIMNAME+'");')
+        self.write('PrintLn (4," - 2 wire -");')
+        self.write('SetResistance(LV, Pass = '+OHM+' Ohms +- 2%, I = Auto);')
+        self.write('Prompt("TURN DIMMER '+DIMNAME+' COUNTERCLOCKWISE ALL THE WAY TO THE END");')
+        self.write('Resistor('+POINT_A+','+POINT_B+');')
+    
+    def test_cnv(self, arguments):
+        CNV_NAME = arguments[0]
+        _24vMIN = arguments[1]
+        _24vMAX = arguments[2]
+        _5vMIN = arguments[3]
+        _5vMAX = arguments[4]
+        POINT_1 = arguments[5]
+        POINT_2 = arguments[6]
+        POINT_3 = arguments[7]
+        POINT_4 = arguments[8]
+
+        self.write('//TEST CNV')
+        self.write('PrintLn (4," ");')
+        self.write('PrintLn (4,"TEST '+CNV_NAME+'");')
+        self.write('SetResistance(5v, Pass = '+_24vMIN+', '+_24vMAX+', I = Auto);')
+        self.write('Resistor ('+POINT_1+', '+POINT_2+'); //24v')
+        self.write('SetResistance(5v, Pass = '+_5vMIN+', '+_5vMAX+', I = Auto);')
+        self.write('Resistor ('+POINT_3+', '+POINT_4+');  //5v')
+
+    def end(self, arguments):
+        self.write('//TEST RESULT')
+        self.write('PrintLn (4,"");')
+        self.write('PrintLn (4,"TEST RESULT");')
+        self.save_code()
+    
+    def write(self, text):
+        self.Script.append(text)
+    
+    def save_code(self):
+        file = open(self.path+"/"+self.product_part_number+".txt", 'w')
+        for line in self.Script:
+            if "//" in line:
+                self.sc.print("")
+                file.write("\n")
+            self.sc.print(line)
+            file.write(line+"\n")
+        file.close()
 
 main()
