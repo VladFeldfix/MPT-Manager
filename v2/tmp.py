@@ -14,7 +14,7 @@
             NetNames = {}            # { NetNumber: NetName }
             TestcablesToOutlets = {} # { BraidMptSide: Outlet }
             OutletsToTestcables = {} # { Outlet: BraidMptSide }
-            TestcablesToProduct = {} # { BraidMptSide: ProductPlug }
+            TestcablesToProduct = {} # { BraidProductSide: ProductPlug }
             Maps = {}                # { BraidMptSide: [ GlobalPoint, PinName, FourWire ] }
             FourWires = {}           # { BraidProductSide: 1 or 2 }
 

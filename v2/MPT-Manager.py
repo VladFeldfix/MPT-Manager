@@ -78,7 +78,7 @@ class main:
             NetNames = {}            # { NetNumber: NetName }
             TestcablesToOutlets = {} # { BraidMptSide: Outlet }
             OutletsToTestcables = {} # { Outlet: BraidMptSide }
-            TestcablesToProduct = {} # { BraidMptSide: ProductPlug }
+            TestcablesToProduct = {} # { BraidProductSide: ProductPlug }
             Maps = {}                # { BraidMptSide: [ GlobalPoint, PinName, FourWire ] }
             FourWires = {}           # { BraidProductSide: 1 or 2 }
 
@@ -263,7 +263,6 @@ class main:
             
             for BraidMptSide, Qty in TestCableSizes.items():
                 if Qty % 50 != 0:
-                    print(Qty)
                     self.sc.fatal_error("Map for test cable #"+str(BraidMptSide)+" has invalid number of global points. Must be 50, 100, 150... 1200")
 
             # fourwire detection
@@ -319,9 +318,6 @@ class main:
                             csv_file.append((ProductPlug, PinName, GlobalPoint, NetNumber, NetLocation, NetName, FourWire))
                             self.sc.print(str(ProductPlug)+", "+str(PinName)+", "+str(GlobalPoint)+", "+str(NetNumber)+", "+str(NetLocation)+", "+str(NetName)+", "+str(FourWire))
 
-            # SAVE CSV FILE
-            self.sc.save_csv(path+"/"+part_number+".csv", csv_file)
-
             # RUN SCRIPT
             self.sc.print("\n----------------------------------- TXT File --------------------------------------")
             functions = {}
@@ -343,12 +339,68 @@ class main:
             self.sc.run_script(path+"/script.txt", functions)
 
             # CREATE AN HTML FILE
-            OutletsToTestcables = self.sc.invert_database(TestcablesToOutlets)
+            # create OutletsToTestcables
+            outlets = ("A1","B1","C1","A2","B2","C2","A3","B3","C3","A4","B4","C4","A5","B5","C5","A6","B6","C6","A7","B7","C7","A8","B8","C8")
+            letters = "ABCDEFGHIJKLMNOPQRSTUVWX"
+            for BraidMptSide, Outlet in TestcablesToOutlets.items():
+                try:
+                    size = int(TestCableSizes[BraidMptSide]) / 50
+                    size = int(size)
+                except:
+                    self.sc.fatal_error("in file: "+self.maps+"/"+str(BraidMptSide)+".csv\nInvalid number of global points")
+                if not size in range(1,25):
+                    self.sc.fatal_error("in file: "+self.maps+"/"+str(BraidMptSide)+".csv\nInvalid number of global points")
+                else:
+                    outlet_index = outlets.index(Outlet)
+                    if size == 1:
+                        if not Outlet in OutletsToTestcables:
+                            OutletsToTestcables[Outlet] = BraidMptSide
+                        else:
+                            self.sc.fatal_error("Overlapping test cable plugs "+str(BraidMptSide)+" and "+OutletsToTestcables[Outlet])
+                    else:
+                        for i in range(size):
+                            o = outlets[outlet_index + i]
+                            t = str(BraidMptSide)+letters[i]
+                            if not o in OutletsToTestcables:
+                                OutletsToTestcables[o] = t
+                            else:
+                                self.sc.fatal_error("Overlapping test cable plugs "+t+" and "+OutletsToTestcables[o])
+
+            # create htmlfile
+            outlets = (("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"),("B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"),("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"))
+            htmlfile = open(path+"/"+part_number+".html", 'w')
             htmlfile.write("<html>\n")
-            for Outlet, FirstPin in Outlets.items():
-                if Outlet in OutletsToTestcables:
-                    BraidMptSide = OutletsToTestcables[Outlet]
-                    Size = TestCableSizes[BraidMptSide]
+            htmlfile.write("<head>\n")
+            htmlfile.write("<link rel = 'stylesheet' type = 'text/css' href = '../__HTML__/style.css'</link>\n")
+            htmlfile.write("</head>\n")
+            htmlfile.write("<div id='content'>\n")
+            htmlfile.write("<h1>"+part_number+"</h1>\n")
+            htmlfile.write("<table>\n")
+            
+            for row in range(3):
+                htmlfile.write("<tr>\n")
+                for out in outlets[row]:
+                    if out in OutletsToTestcables:
+                        htmlfile.write("<td class='plug_name'>"+str(OutletsToTestcables[out])+"</td>\n")
+                    else:
+                        htmlfile.write("<td class='plug_name'>_</td>\n")
+                htmlfile.write("</tr>\n")
+                htmlfile.write('<tr>\n')
+                for x in range(1,9):
+                    htmlfile.write('<td class="outlet_name">'+letters[row]+str(x)+'</td>\n')
+                htmlfile.write('</tr>\n')
+            htmlfile.write("</table>\n")
+            
+            for BraidProductSide, ProductPlug in TestcablesToProduct.items(): #"10.2":"P5"
+                htmlfile.write('<p>'+str(BraidProductSide)+' <img src="../__HTML__/plug.bmp"> '+str(ProductPlug)+'</p>\n')
+            htmlfile.write("</div>\n")
+            htmlfile.write("</body>\n")
+            htmlfile.write("</html>\n")
+            htmlfile.close()
+        
+        # SAVE CSV FILE
+        self.sc.save_csv(path+"/"+part_number+".csv", csv_file)
+        
         # restart
         self.sc.restart()
 
