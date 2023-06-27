@@ -23,7 +23,7 @@ class main:
     
     def run(self):
         # get part_number
-        part_number = self.sc.input("Insert PART NUMBER").upper()
+        part_number = self.sc.input("Insert PART NUMBER [Without R-]").upper()
         path = self.programs+"/"+part_number
         self.product_part_number = part_number
         self.path = path
@@ -45,7 +45,7 @@ class main:
                 file.write("TESTCABLE,PRODUCT")
                 file.close()
                 file = open(path+"/script.txt", 'w')
-                file.write("START("+part_number+", Description , Drawing , Drawing_Rev )\n")
+                file.write("START(R-"+part_number+", Description , Drawing , Drawing_Rev )\n")
                 file.write("TEST_CONTACT()\n")
                 file.write("TEST_INSULATION()\n")
                 file.write("TEST_HIPOT()\n")
@@ -325,14 +325,14 @@ class main:
             functions["TEST_CONTACT"] = (self.test_conductor, ())
             functions["TEST_INSULATION"] = (self.test_isolation, ())
             functions["TEST_HIPOT"] = (self.test_hipot, ())
-            functions["TEST_BUTTON"] = (self.test_button, ("BTNNAME", "NCNO", "POINTS"))
-            functions["TEST_SWITCH"] = (self.test_switch, ("SWNAME", "POSITION", "POINTS"))
-            functions["TEST_ONOFF_SWITCH"] = (self.test_onoffswitch, ("SWNAME", "POINTS"))
-            functions["TEST_LED"] = (self.test_led, ("LEDNAME", "NET1", "NET2", "COLOR"))
-            functions["TEST_COAX"] = (self.test_coax_cable, ("COAXNAME", "SIGNAL", "BRAID"))
-            functions["TEST_RESISTOR"] = (self.test_resistor, ("RESNAME", "OHM", "NET1", "NET2"))
-            functions["TEST_CAPACITOR"] = (self.test_capacitor, ("CAPNAME", "MIN", "MAX", "NET1", "NET2", "DICHARGE"))
-            functions["TEST_DIMMER"] = (self.test_dimmer, ("DIMNAME", "OHM", "POINT_A", "POINT_B"))
+            functions["TEST_BUTTON"] = (self.test_button, ("BTNNAME", "NCNO", "POINT1", "POINT2"))
+            functions["TEST_SWITCH"] = (self.test_switch, ("SWNAME", "POSITION", "POINT1", "POINT2"))
+            functions["TEST_ONOFF_SWITCH"] = (self.test_onoffswitch, ("SWNAME", "POINT1", "POINT2"))
+            functions["TEST_LED"] = (self.test_led, ("LEDNAME", "COLOR", "POINT1", "POINT2"))
+            functions["TEST_COAX"] = (self.test_coax_cable, ("COAXNAME", "POINT_1", "POINT_2", "POINT_3", "POINT_4"))
+            functions["TEST_RESISTOR"] = (self.test_resistor, ("RESNAME", "OHM", "POINT1", "POINT2"))
+            functions["TEST_CAPACITOR"] = (self.test_capacitor, ("CAPNAME", "MIN", "MAX", "DICHARGE", "POINT1", "POINT2"))
+            functions["TEST_DIMMER"] = (self.test_dimmer, ("DIMNAME", "OHM", "POINT1", "POINT2"))
             functions["TEST_CNV"] = (self.test_cnv, ("CNV_NAME", "_24vMIN", "_24vMAX", "_5vMIN", "_5vMAX", "POINT_1", "POINT_2", "POINT_3", "POINT_4"))
             functions["END"] = (self.end, ())
             self.Script = []
@@ -477,75 +477,64 @@ class main:
     def test_button(self, arguments):
         BTNNAME = arguments[0]
         NCNO = arguments[1]
-        POINTS = arguments[2]
-        POINTS = POINTS.replace("[","(").replace("]","),").replace("-",",")
-        tmp = POINTS.replace("(","").replace(")","")
-        tmp = tmp.split(",")
-        POINT1 = tmp[0]
-        POINT2 = tmp[1]
+        POINT1 = tmp[2]
+        POINT2 = tmp[3]
 
         self.write('//TEST BUTTON')
         self.write('PrintLn (4,"TEST BUTTON '+BTNNAME+'");')
         if NCNO == "NO":
             self.write('PrintLn (CON+DSK, "PRESS AND RELEASE BUTTON '+BTNNAME+'");')
-            self.write('WaitForCont('+POINT1+','+POINT2+');')
-            self.write('Continuity('+POINTS+');')
-            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+            self.write('WaitForCont(('+POINT1+','+POINT2+'));')
+            self.write('Continuity(('+POINT1+','+POINT2+'));')
+            self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
         elif NCNO == "NC":
             self.write('PrintLn (CON+DSK, "PRESS AND RELEASE BUTTON '+BTNNAME+'");')
-            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
-            self.write('Insulation('+POINTS+');')
-            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+            self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
+            self.write('Insulation(('+POINT1+','+POINT2+'));')
+            self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
         elif NCNO == "SWITCH-NO":
             self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+'");')
-            self.write('WaitForCont('+POINT1+','+POINT2+');')
-            self.write('Continuity('+POINTS+');')
+            self.write('WaitForCont(('+POINT1+','+POINT2+'));')
+            self.write('Continuity(('+POINT1+','+POINT2+'));')
             self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+' AGAIN");')
-            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+            self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
         elif NCNO == "SWITCH-NC":
             self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+'");')
-            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
-            self.write('Insulation('+POINTS+');')
+            self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
+            self.write('Insulation(('+POINT1+','+POINT2+'));')
             self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+' AGAIN");')
-            self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+            self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
 
     def test_switch(self, arguments):
         SWNAME = arguments[0]
         POSITION = arguments[1]
-        POINTS = arguments[2]
-        POINTS = POINTS.replace("[","(").replace("]","),").replace("-",",")
-        tmp = POINTS.replace("(","").replace(")","")
-        tmp = tmp.split(",")
-        POINT1 = tmp[0]
-        POINT2 = tmp[1]
+        POINT1 = arguments[2]
+        POINT2 = arguments[3]
         self.write('//TEST SWITCH')
         self.write('PrintLn (4,"TEST SWITCH '+SWNAME+'");')
         self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION '+POSITION+'");')
-        self.write('WaitForCont('+POINT1+','+POINT2+');')
-        self.write('Continuity('+POINTS+');')
+        self.write('WaitForCont(('+POINT1+','+POINT2+'));')
+        self.write('Continuity(('+POINT1+','+POINT2+'));')
     
     def test_onoffswitch(self, arguments):
         SWNAME = arguments[0]
         POINTS = arguments[1]
-        POINTS = POINTS.replace("[","(").replace("]","),").replace("-",",")
-        tmp = POINTS.replace("(","").replace(")","")
-        tmp = tmp.split(",")
-        POINT1 = tmp[0]
-        POINT2 = tmp[1]
+        POINT1 = arguments[0]
+        POINT2 = arguments[1]
         self.write('//TEST SWITCH')
         self.write('PrintLn (4,"TEST SWITCH '+SWNAME+' ON");')
         self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION ON");')
-        self.write('WaitForCont('+POINT1+','+POINT2+');')
-        self.write('Continuity('+POINTS+');')
+        self.write('WaitForCont(('+POINT1+','+POINT2+'));')
+        self.write('Continuity(('+POINT1+','+POINT2+'));')
         self.write('PrintLn (4,"TEST SWITCH '+SWNAME+' OFF");')
         self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION OFF");')
-        self.write('WaitForNoCont('+POINT1+','+POINT2+');')
+        self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
 
     def test_led(self, arguments):
         LEDNAME = arguments[0]
-        NET1 = arguments[1]
-        NET2 = arguments[2]
-        COLOR = arguments[3]
+        COLOR = arguments[1]
+        NET1 = arguments[2]
+        NET2 = arguments[3]
 
         self.write('//TEST LED')
         self.write('PrintLn (4,"TEST LED '+LEDNAME+'");')
@@ -558,11 +547,10 @@ class main:
 
     def test_coax_cable(self, arguments):
         COAXNAME = arguments[0]
-        SIGNAL = arguments[1]
-        BRAID = arguments[2]
-
-        SIGNAL = SIGNAL.split("-")
-        BRAID = BRAID.split("-")
+        POINT1 = arguments[1]
+        POINT2 = arguments[2]
+        POINT3 = arguments[3]
+        POINT4 = arguments[4]
         self.write('//TEST COAX CABLE')
         self.write('PrintLn (4,"TEST COAX CABLE '+COAXNAME+'");')
         self.write('Lua(')
@@ -570,16 +558,16 @@ class main:
         self.write('\tprinttodevices(DSK + CON, "\n")')
         self.write('\t ClrAllTest(false)')
         self.write('\t ClrAllCom(false)')
-        self.write('\t SetTest(false,"'+SIGNAL[0]+'")')
-        self.write('\t SetCom(false,"'+SIGNAL[1]+'")')
+        self.write('\t SetTest(false,"'+POINT1+'")')
+        self.write('\t SetCom(false,"'+POINT2+'")')
         self.write('\t printtodevices(DSK + CON, "Measure signal resistance")')
         self.write('\t DoContinuity()')
         self.write('\t signal_resistance = lastresmeasurement')
         self.write('\t -- Test braid')
         self.write('\t ClrAllTest(false)')
         self.write('\t ClrAllCom(false)')
-        self.write('\t SetTest(false,"'+BRAID[0]+'")')
-        self.write('\t SetCom(false,"'+BRAID[1]+'")')
+        self.write('\t SetTest(false,"'+POINT3+'")')
+        self.write('\t SetCom(false,"'+POINT4+'")')
         self.write('\t printtodevices(DSK + CON, "Measure braid resistance")')
         self.write('\t DoContinuity()')
         self.write('\t braid_resistance = lastresmeasurement')
@@ -610,9 +598,9 @@ class main:
         CAPNAME = arguments[0]
         MIN = arguments[1]
         MAX = arguments[2]
-        NET1 = arguments[3]
-        NET2 = arguments[4]
-        DICHARGE = arguments[5]
+        DICHARGE = arguments[3]
+        NET1 = arguments[4]
+        NET2 = arguments[5]
 
         if DICHARGE == "Y":
             self.write('//DISCHARGE CAPACITOR')
@@ -653,9 +641,9 @@ class main:
         self.write('//TEST CNV')
         self.write('PrintLn (4," ");')
         self.write('PrintLn (4,"TEST '+CNV_NAME+'");')
-        self.write('SetResistance(5v, Pass = '+_24vMIN+', '+_24vMAX+', I = Auto);')
+        self.write('SetResistance(5v, Pass = '+_24vMIN+' Ohms, '+_24vMAX+' Ohms, I = Auto);')
         self.write('Resistor ('+POINT_1+', '+POINT_2+'); //24v')
-        self.write('SetResistance(5v, Pass = '+_5vMIN+', '+_5vMAX+', I = Auto);')
+        self.write('SetResistance(5v, Pass = '+_5vMIN+' Ohms, '+_5vMAX+' Ohms, I = Auto);')
         self.write('Resistor ('+POINT_3+', '+POINT_4+');  //5v')
 
     def end(self, arguments):
