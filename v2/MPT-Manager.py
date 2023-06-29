@@ -45,7 +45,7 @@ class main:
                 file.write("TESTCABLE,PRODUCT")
                 file.close()
                 file = open(path+"/script.txt", 'w')
-                file.write("START(R-"+part_number+", Description , Drawing , Drawing_Rev )\n")
+                file.write("START("+part_number+", Description , Drawing , Drawing_Rev )\n")
                 file.write("TEST_CONTACT()\n")
                 file.write("TEST_INSULATION()\n")
                 file.write("TEST_HIPOT()\n")
