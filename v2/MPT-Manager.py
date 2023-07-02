@@ -42,7 +42,7 @@ class main:
                 file.write("TESTCABLE,OUTLET")
                 file.close()
                 file = open(path+"/testcables_to_product.csv", 'w')
-                file.write("TESTCABLE,PRODUCT")
+                file.write("TESTCABLE,PRODUCT,PARTNUMBER")
                 file.close()
                 file = open(path+"/script.txt", 'w')
                 file.write("START("+part_number+", Description , Drawing , Drawing_Rev )\n")
@@ -120,7 +120,7 @@ class main:
             netlist = self.sc.load_csv(path+"/netlist.csv")                                # CONNAME    PINNAME   NETNUM
             netnames = self.sc.load_csv(path+"/netnames.csv")                              # NETNUM     NETNAME
             testcables_to_outlets = self.sc.load_csv(path+"/testcables_to_outlets.csv")    # TESTCABLE  OUTLET
-            testcables_to_product = self.sc.load_csv(path+"/testcables_to_product.csv")    # TESTCABLE  PRODUCT
+            testcables_to_product = self.sc.load_csv(path+"/testcables_to_product.csv")    # TESTCABLE  PRODUCT   PARTNUMBER
 
             # TEST LOADED CSV FILES
             # netlist
@@ -142,14 +142,14 @@ class main:
                 try:
                     NetNumber = int(NetNumber)
                 except:
-                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nNet number: "+NetNumber+" is not a numerical value")
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nNet number: "+str(NetNumber)+" is not a numerical value")
 
                 # add to dictionary
                 if not ProductPlug+"."+PinName in NetList:
                     NetList[ProductPlug+"."+PinName] = NetNumber
                     MappedNetNumbers.append(NetNumber)
                 else:
-                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nLocation: "+ProductPlug+"."+PinName+" is not unique")
+                    self.sc.fatal_error("in file: "+path+"/netlist.csv\nLocation: "+str(ProductPlug)+"."+str(PinName)+" is not unique")
 
             # netnames
             for row in netnames[1:]:
@@ -163,14 +163,14 @@ class main:
                 try:
                     NetNumber = int(NetNumber)
                 except:
-                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+NetNumber+" is not a numerical value")
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+str(NetNumber)+" is not a numerical value")
                 if not NetNumber in MappedNetNumbers:
-                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+NetNumber+" is mapped in netlist.csv")
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+str(NetNumber)+" is mapped in netlist.csv")
                 
                 if NetName == "":
                     self.sc.fatal_error("in file: "+path+"/netnames.csv\nMissing net name")
                 if NetName in UsedNetNames:
-                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet name: "+NetName+" is not unique")
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet name: "+str(NetName)+" is not unique")
                 else:
                     UsedNetNames.append(NetName)
                 
@@ -178,7 +178,7 @@ class main:
                 if not NetNumber in NetNames:
                     NetNames[NetNumber] = NetName
                 else:
-                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+NetNumber+" is not unique")
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+str(NetNumber)+" is not unique")
 
             # testcables_to_outlets
             for row in testcables_to_outlets[1:]:
@@ -192,7 +192,7 @@ class main:
                 try:
                     BraidMptSide = int(BraidMptSide)
                 except:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nTest cable number: "+BraidMptSide+" is not a numerical value")
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nTest cable number: "+str(BraidMptSide)+" is not a numerical value")
                 
                 if not Outlet in Outlets:
                     self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nInvalid outlet number: "+Outlet)
@@ -201,7 +201,7 @@ class main:
                 if not BraidMptSide in TestcablesToOutlets:
                     TestcablesToOutlets[BraidMptSide] = Outlet
                 else:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nTest cable number: "+BraidMptSide+" is not unique")
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nTest cable number: "+str(BraidMptSide)+" is not unique")
 
             # testcables_to_product
             for row in testcables_to_product[1:]:
@@ -218,15 +218,15 @@ class main:
                 try:
                     BraidMptSide = int(BraidMptSide)
                 except:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidProductSide+" is not a valid value")
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+str(BraidProductSide)+" is not a valid value")
                 if not BraidMptSide in TestcablesToOutlets:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidMptSide+" is not mapped in testcables_to_outlets.csv")
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+str(BraidMptSide)+" is not mapped in testcables_to_outlets.csv")
 
                 # add to dictionary
                 if not BraidProductSide in TestcablesToProduct:
                     TestcablesToProduct[BraidProductSide] = ProductPlug
                 else:
-                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+BraidProductSide+" is not unique")
+                    self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+str(BraidProductSide)+" is not unique")
 
             # LOAD MAPS
             for BraidMptSide, Outlet in TestcablesToOutlets.items(): # Maps = { BraidMptSide: [ GlobalPoint, BraidProductSide, PinName ] }
@@ -245,7 +245,7 @@ class main:
                         try:
                             GlobalPoint = int(GlobalPoint)
                         except:
-                            self.sc.fatal_error("in file: "+MapPath+"\nGlobal point: "+GlobalPoint+" is not a numerical value")
+                            self.sc.fatal_error("in file: "+MapPath+"\nGlobal point: "+str(GlobalPoint)+" is not a numerical value")
                         
                         if PinName == "":
                             self.sc.fatal_error("in file: "+MapPath+"\nMissing pin name")
@@ -276,7 +276,7 @@ class main:
                         if FourWires[BraidProductSide+"."+PinName] == 1:
                             FourWires[BraidProductSide+"."+PinName] = 2
                         else:
-                            self.sc.fatal_error("in file: "+self.maps+"/"+str(BraidMptSide)+".csv\nPoint "+BraidProductSide+" appears more than twice!")
+                            self.sc.fatal_error("in file: "+self.maps+"/"+str(BraidMptSide)+".csv\nPoint "+str(BraidProductSide)+" appears more than twice!")
 
             # CREATE CSV FILE
             write = True
@@ -364,7 +364,7 @@ class main:
                             if not o in OutletsToTestcables:
                                 OutletsToTestcables[o] = t
                             else:
-                                self.sc.fatal_error("Overlapping test cable plugs "+t+" and "+OutletsToTestcables[o])
+                                self.sc.fatal_error("Overlapping test cable plugs "+str(t)+" and "+OutletsToTestcables[o])
 
             # create htmlfile
             outlets = (("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"),("B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"),("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"))
