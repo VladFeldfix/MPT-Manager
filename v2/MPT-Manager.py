@@ -1,11 +1,12 @@
 from SmartConsole import *
 import os
+import shutil
 
 class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "2.0")
+        self.sc = SmartConsole("MPT Manager", "2.1")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -32,25 +33,30 @@ class main:
         if not os.path.isdir(path):
             if self.sc.question("No such folder: "+path+"\nWould you like to create a new folder?"):
                 os.makedirs(path)
-                file = open(path+"/netlist.csv", 'w')
-                file.write("CONNAME,PINNAME,NETNUM")
-                file.close()
-                file = open(path+"/netnames.csv", 'w')
-                file.write("NETNUM,NETNAME")
-                file.close()
-                file = open(path+"/testcables_to_outlets.csv", 'w')
-                file.write("TESTCABLE,OUTLET")
-                file.close()
-                file = open(path+"/testcables_to_product.csv", 'w')
-                file.write("TESTCABLE,PRODUCT,PARTNUMBER")
-                file.close()
-                file = open(path+"/script.txt", 'w')
-                file.write("START("+part_number+", Description , Drawing , Drawing_Rev )\n")
-                file.write("TEST_CONTACT()\n")
-                file.write("TEST_INSULATION()\n")
-                file.write("TEST_HIPOT()\n")
-                file.write("END()\n")
-                file.close()
+                if not os.path.isfile(path+"/netlist.csv"):
+                    file = open(path+"/netlist.csv", 'w')
+                    file.write("CONNAME,PINNAME,NETNUM")
+                    file.close()
+                if not os.path.isfile(path+"/netnames.csv"):
+                    file = open(path+"/netnames.csv", 'w')
+                    file.write("NETNUM,NETNAME")
+                    file.close()
+                if not os.path.isfile(path+"/testcables_to_outlets.csv"):
+                    file = open(path+"/testcables_to_outlets.csv", 'w')
+                    file.write("TESTCABLE,OUTLET")
+                    file.close()
+                if not os.path.isfile(path+"/testcables_to_product.csv"):
+                    file = open(path+"/testcables_to_product.csv", 'w')
+                    file.write("TESTCABLE,PRODUCT,PARTNUMBER")
+                    file.close()
+                if not os.path.isfile(path+"/script.txt"):
+                    file = open(path+"/script.txt", 'w')
+                    file.write("START("+part_number+", Description , Drawing , Drawing_Rev )\n")
+                    file.write("TEST_CONTACT()\n")
+                    file.write("TEST_INSULATION()\n")
+                    file.write("TEST_HIPOT()\n")
+                    file.write("END()\n")
+                    file.close()
                 self.sc.print("Fill all the files and come back here to generate an MPT program")
                 self.sc.open_folder(path)
                 self.sc.restart()
@@ -165,7 +171,7 @@ class main:
                 except:
                     self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+str(NetNumber)+" is not a numerical value")
                 if not NetNumber in MappedNetNumbers:
-                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+str(NetNumber)+" is mapped in netlist.csv")
+                    self.sc.fatal_error("in file: "+path+"/netnames.csv\nNet number: "+str(NetNumber)+" is not mapped in netlist.csv")
                 
                 if NetName == "":
                     self.sc.fatal_error("in file: "+path+"/netnames.csv\nMissing net name")
@@ -334,6 +340,7 @@ class main:
             functions["TEST_CAPACITOR"] = (self.test_capacitor, ("CAPNAME", "MIN", "MAX", "DICHARGE", "POINT1", "POINT2"))
             functions["TEST_DIMMER"] = (self.test_dimmer, ("DIMNAME", "OHM", "POINT1", "POINT2"))
             functions["TEST_CNV"] = (self.test_cnv, ("CNV_NAME", "_24vMIN", "_24vMAX", "_5vMIN", "_5vMAX", "POINT_1", "POINT_2", "POINT_3", "POINT_4"))
+            functions["TEST_SSR"] = (self.test_ssr, ("SSR NAME", "OUTPUT1", "OUTPUT2", "INPUT3", "INPUT4", "PROBE1", "PROBE2"))
             functions["END"] = (self.end, ())
             self.Script = []
             self.sc.run_script(path+"/script.txt", functions)
@@ -518,9 +525,8 @@ class main:
     
     def test_onoffswitch(self, arguments):
         SWNAME = arguments[0]
-        POINTS = arguments[1]
-        POINT1 = arguments[0]
-        POINT2 = arguments[1]
+        POINT1 = arguments[1]
+        POINT2 = arguments[2]
         self.write('//TEST SWITCH')
         self.write('PrintLn (4,"TEST SWITCH '+SWNAME+' ON");')
         self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION ON");')
@@ -642,9 +648,59 @@ class main:
         self.write('PrintLn (4," ");')
         self.write('PrintLn (4,"TEST '+CNV_NAME+'");')
         self.write('SetResistance(5v, Pass = '+_24vMIN+' Ohms, '+_24vMAX+' Ohms, I = Auto);')
-        self.write('Resistor ('+POINT_1+', '+POINT_2+'); //24v')
+        self.write('Resistor ('+POINT_1+', '+POINT_2+');')
         self.write('SetResistance(5v, Pass = '+_5vMIN+' Ohms, '+_5vMAX+' Ohms, I = Auto);')
-        self.write('Resistor ('+POINT_3+', '+POINT_4+');  //5v')
+        self.write('Resistor ('+POINT_3+', '+POINT_4+');')
+    
+    def test_ssr(self, arguments):
+        ssr_name = arguments[0]
+        OUTPUT1 = arguments[1]
+        OUTPUT2 = arguments[2]
+        INPUT3 = arguments[3]
+        INPUT4 = arguments[4]
+        PROBE1 = arguments[5]
+        PROBE2 = arguments[6]
+
+        # create HTML
+        file = open(self.path+"/SSR Instructions.html", "w")
+        file.write('<html>')
+        file.write('    <head>')
+        file.write('        <link rel="stylesheet" type="text/css" href="../__HTML__/style.css">')
+        file.write('    </head>')
+        file.write('    <body>')
+        file.write('        <div id="content">')
+        file.write('            <h1>'+self.product_part_number+'</h1>')
+        file.write('            <p>')
+        file.write('                '+ssr_name+'<br>')
+        file.write('                <img src="SSR Instructions.png">')
+        file.write('            </p>')
+        file.write('        </div>')
+        file.write('    </body>')
+        file.write('</html>')
+        file.close()
+        src = "img/SSR.png"
+        dst = self.path+"/SSR Instructions.png"
+        shutil.copyfile(src, dst)
+
+        # write machine code
+        self.write('//TEST SSR')
+        self.write('PrintLn (4,"--------------------------------------------------------------------");')
+        self.write('PrintLn (4,"Test crocodiles to SSR");')
+        self.write('SetConductor(HC, Pass < 1 Ohm, I = 100 mA, V = 5 Volts);')
+        self.write('Continuity('+INPUT4+',#'+PROBE2+');')
+        self.write('Continuity('+OUTPUT1+',#'+PROBE1+');')
+        self.write('PrintLn (4,"--------------------------------------------------------------------");')
+        self.write('PrintLn (4,"TEST SSR1 POWER ON");')
+        self.write('SetPS(V = 5 Volts, I = 0.01 Amps);')
+        self.write('PowerOn(('+INPUT3+','+OUTPUT2+'),('+INPUT4+'));')
+        self.write('Delay(1000);')
+        self.write('PSV();')
+        self.write('PSI(Min = 0.005 Amps, Max = 0.03 Amps); If(FAILED) {PrintLn("SSR not working"); Abort();  }')
+        self.write('SetReadVolts(MIN=4 Volts, MAX=6 Volts );')
+        self.write('ReadVolts(#'+PROBE1+',#'+PROBE2+'); // SSR OUTPUT1 -> #'+PROBE1+' SSR INPUT4 -> #'+PROBE2+'')
+        self.write('PowerOff();')
+        self.write('PrintLn (4," ");')
+        self.write('PrintLn (4," ");')
 
     def end(self, arguments):
         self.write('//TEST RESULT')
