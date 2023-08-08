@@ -6,7 +6,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "2.1")
+        self.sc = SmartConsole("MPT Manager", "2.2")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -435,34 +435,33 @@ class main:
         self.write('//GET HTML')
         self.write('LoadHTML("'+PARTNUMBER+'.html");')
         self.write('//INFO')
-        self.write("PrintLn (4,time); Print(4,"   ");Print(4,date);")
-        self.write('PrintLn (4," *****  Flex  *****  ");')
-        self.write('PrintLn (4," Customer: RAFAEL    ");')
-        self.write('PrintLn (4," Ass-y name: '+PRODUCT_DESCRIPTION+' ");')
-        self.write('PrintLn (4," Ass-y PN: '+PARTNUMBER+' ");')
-        self.write('PrintLn (4," Print PN: '+PARTNUMBER+' ");')
-        self.write('PrintLn (4," Prog name: '+PARTNUMBER+' ");')
-        self.write('PrintLn (4," Wire Diagram: '+DRAWING_PN+' REV.: '+DRAWING_REV+' ");')
-        self.write('PrintLn (4," TRD: PS-39-756948 rev.: L");')
+        self.write('SetPrintLog(ON=ALL,CON);')
+        self.write('PrintLn (4,": GENERAL INFO";')
+        self.write('PrintLn (4," /*****  Flex  *****/");')
+        self.write('PrintLn (4," Date: "); Print(4,date); Print(4," "); Print(4,time);')
+        self.write('PrintLn (4," Customer: RAFAEL");')
+        self.write('PrintLn (4," Ass-y name: '+PRODUCT_DESCRIPTION+'");')
+        self.write('PrintLn (4," Ass-y PN: '+PARTNUMBER+'");')
+        self.write('PrintLn (4," Print PN: '+PARTNUMBER+'");')
+        self.write('PrintLn (4," Prog name: '+PARTNUMBER+'");')
+        self.write('PrintLn (4," Wire Diagram: '+DRAWING_PN+' Rev.: '+DRAWING_REV+'");')
+        self.write('PrintLn (4," TRD: PS-39-756948 Rev.: L");')
         self.write('//GET OPERATOR NAME AND SERIAL NUMBER')
         self.write('PrintLn (4,"");')
-        self.write('Print(CON+DSK,"Operator Name: ");')
+        self.write('PrintLn (4,": OPERATOR NAME AND PRODUCT SERIAL NUMBER");')
+        self.write('Print(CON+DSK," Operator Name: ");')
         self.write('Input("Enter Operator Name: ");')
         self.write('PrintLn(CON+DSK, TEXT);')
-        self.write('PrintLn (4,"");')
-        self.write('SetPrintLog(ON =ALL,CON);')
         self.write('Print(CON+DSK,"Serial Number: ");')
         self.write('Input("Enter Serial Number: ");')
         self.write('PrintLn(CON+DSK, TEXT);')
         self.write('PrintLn (4,"");')
-        self.write('SetPrintLog(ON =ALL,CON);')
         self.write('//LOAD CALIBRATION FILE')
         self.write('AdapterCal("C:/MPT/Systems.cal");')
 
     def test_conductor(self, arguments):
-        self.write('//TEST CONDUCTOR 2-wire')
-        self.write('PrintLn (4,"TEST CONDUCTOR");')
-        self.write('PrintLn (4," - 2 wire -");')
+        self.write('//TEST CONDUCTOR - 2 wire')
+        self.write('PrintLn (4,"TEST CONDUCTOR - 2 wire");')
         self.write('SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);')
         self.write('Continuity(all);')
 
@@ -473,7 +472,7 @@ class main:
         self.write('Insulation(all);')
 
     def test_hipot(self, arguments):
-        self.write('//TEST HI-POT')
+        self.write('//TEST  HiPot DC')
         self.write('If(PASSED){')
         self.write('\tPrompt("WARNING! Hi voltage test is about to start. Close the glass dome before continuation");')
         self.write('\tPrintLn (4,"TEST  HiPot DC");')
@@ -484,8 +483,8 @@ class main:
     def test_button(self, arguments):
         BTNNAME = arguments[0]
         NCNO = arguments[1]
-        POINT1 = tmp[2]
-        POINT2 = tmp[3]
+        POINT1 = arguments[2]
+        POINT2 = arguments[3]
 
         self.write('//TEST BUTTON')
         self.write('PrintLn (4,"TEST BUTTON '+BTNNAME+'");')
@@ -561,31 +560,31 @@ class main:
         self.write('PrintLn (4,"TEST COAX CABLE '+COAXNAME+'");')
         self.write('Lua(')
         self.write('\t -- Test Signal')
-        self.write('\tprinttodevices(DSK + CON, "\n")')
-        self.write('\t ClrAllTest(false)')
-        self.write('\t ClrAllCom(false)')
-        self.write('\t SetTest(false,"'+POINT1+'")')
-        self.write('\t SetCom(false,"'+POINT2+'")')
-        self.write('\t printtodevices(DSK + CON, "Measure signal resistance")')
-        self.write('\t DoContinuity()')
-        self.write('\t signal_resistance = lastresmeasurement')
-        self.write('\t -- Test braid')
-        self.write('\t ClrAllTest(false)')
-        self.write('\t ClrAllCom(false)')
-        self.write('\t SetTest(false,"'+POINT3+'")')
-        self.write('\t SetCom(false,"'+POINT4+'")')
-        self.write('\t printtodevices(DSK + CON, "Measure braid resistance")')
-        self.write('\t DoContinuity()')
-        self.write('\t braid_resistance = lastresmeasurement')
-        self.write('\t -- Compare')
-        self.write('\t if signal_resistance > braid_resistance then')
-        self.write('\t \t printtodevices(DSK + CON, signal_resistance, " > " ,braid_resistance)')
-        self.write('\t \t printtodevices(DSK + CON, "PASS")')
-        self.write('\t else')
-        self.write('\t \t printtodevices(DSK + CON, "FAIL")')
-        self.write('\t \t SetFailedFlag()')
-        self.write('\t end')
-        self.write('\tprinttodevices(DSK + CON, "\n\n")')
+        self.write('\tprinttodevices(DSK + CON, "")')
+        self.write('\tClrAllTest(false)')
+        self.write('\tClrAllCom(false)')
+        self.write('\tSetTest(false,"'+POINT1+'")')
+        self.write('\tSetCom(false,"'+POINT2+'")')
+        self.write('\tprinttodevices(DSK + CON, "Measure signal resistance")')
+        self.write('\tDoContinuity()')
+        self.write('\tsignal_resistance = lastresmeasurement')
+        self.write('\t-- Test braid')
+        self.write('\tClrAllTest(false)')
+        self.write('\tClrAllCom(false)')
+        self.write('\tSetTest(false,"'+POINT3+'")')
+        self.write('\tSetCom(false,"'+POINT4+'")')
+        self.write('\tprinttodevices(DSK + CON, "Measure braid resistance")')
+        self.write('\tDoContinuity()')
+        self.write('\tbraid_resistance = lastresmeasurement')
+        self.write('\t-- Compare')
+        self.write('\tif signal_resistance > braid_resistance then')
+        self.write('\t\t printtodevices(DSK + CON, signal_resistance, " > " ,braid_resistance)')
+        self.write('\t\t printtodevices(DSK + CON, "PASS")')
+        self.write('\telse')
+        self.write('\t\t printtodevices(DSK + CON, "FAIL")')
+        self.write('\t\t SetFailedFlag()')
+        self.write('\tend')
+        self.write('\tprinttodevices(DSK + CON, "")')
         self.write(')')
 
     def test_resistor(self, arguments):
@@ -705,7 +704,7 @@ class main:
     def end(self, arguments):
         self.write('//TEST RESULT')
         self.write('PrintLn (4,"");')
-        self.write('PrintLn (4,"TEST RESULT");')
+        self.write('PrintLn (4,": TEST RESULT");')
         self.save_code()
     
     def write(self, text):
