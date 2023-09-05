@@ -683,6 +683,7 @@ class main:
 
         # write machine code
         self.write('//TEST SSR')
+        self.write('LoadHTML("SSR Instructions.html")')
         self.write('PrintLn (4,"--------------------------------------------------------------------");')
         self.write('PrintLn (4,"Test crocodiles to SSR");')
         self.write('SetConductor(HC, Pass < 1 Ohm, I = 100 mA, V = 5 Volts);')
