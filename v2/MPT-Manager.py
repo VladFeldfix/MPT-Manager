@@ -671,14 +671,14 @@ class main:
         file.write('            <h1>'+self.product_part_number+'</h1>\n')
         file.write('            <p>\n')
         file.write('                '+ssr_name+'<br>\n')
-        file.write('                <img src="SSR Instructions.png">\n')
+        file.write('                <img src="SSR Instructions.jpeg">\n')
         file.write('            </p>\n')
         file.write('        </div>\n')
         file.write('    </body>\n')
         file.write('</html>\n')
         file.close()
         src = "img/SSR.png"
-        dst = self.path+"/SSR Instructions.png"
+        dst = self.path+"/SSR Instructions.jpeg"
         shutil.copyfile(src, dst)
 
         # write machine code
