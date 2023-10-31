@@ -6,7 +6,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "2.2")
+        self.sc = SmartConsole("MPT Manager", "2.3")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -297,7 +297,10 @@ class main:
                         GlobalPoint = MapRow[0] + Outlets[TestcablesToOutlets[BraidMptSide]]
                         if ProductPlug+"."+PinName in NetList:
                             NetNumber = NetList[ProductPlug+"."+PinName]
-                            NetName = NetNames[NetNumber]
+                            if NetNumber in NetNames:
+                                NetName = NetNames[NetNumber]
+                            else:
+                                self.sc.fatal_error("NetNumber: "+str(NetNumber)+" not found!")
                         else:
                             EmptyNets += 1
                             NetNumber = EmptyNets
@@ -565,25 +568,27 @@ class main:
         self.write('\tClrAllCom(false)')
         self.write('\tSetTest(false,"'+POINT1+'")')
         self.write('\tSetCom(false,"'+POINT2+'")')
-        self.write('\tprinttodevices(DSK + CON, " Measure signal resistance")')
+        self.write('\tprinttodevices(DSK + CON, " Measure signal resistance '+POINT1+' - '+POINT2+'")')
         self.write('\tDoContinuity()')
         self.write('\tsignal_resistance = lastresmeasurement')
+        self.write('')
         self.write('\t-- Test braid')
         self.write('\tClrAllTest(false)')
         self.write('\tClrAllCom(false)')
         self.write('\tSetTest(false,"'+POINT3+'")')
         self.write('\tSetCom(false,"'+POINT4+'")')
-        self.write('\tprinttodevices(DSK + CON, " Measure braid resistance")')
+        self.write('\tprinttodevices(DSK + CON, " Measure braid resistance '+POINT3+' - '+POINT4+'")')
         self.write('\tDoContinuity()')
         self.write('\tbraid_resistance = lastresmeasurement')
+        self.write('')
         self.write('\t-- Compare')
         self.write('\tif signal_resistance > braid_resistance then')
         self.write('\t\t printtodevices(DSK + CON, " Test Result: ", signal_resistance, " > " ,braid_resistance)')
         self.write('\t\t printtodevices(DSK + CON, " PASS")')
         self.write('\telse')
         self.write('\t\t printtodevices(DSK + CON, "* FAIL")')
-        self.write('\t\t SetFailedFlag()')
-        self.write('\tend')
+        self.write('\t\t printtodevices(DSK + CON, " Check '+COAXNAME+' COAX cable wiring")')
+        self.write('\t\t AbortTest()')
         self.write('\tprinttodevices(DSK + CON, "")')
         self.write(')')
 
