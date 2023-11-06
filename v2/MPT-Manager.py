@@ -561,7 +561,7 @@ class main:
         POINT3 = arguments[3]
         POINT4 = arguments[4]
         self.write('//TEST COAX CABLE')
-        self.write('PrintLn (4,": TEST COAX CABLE '+COAXNAME+'");')
+        self.write('PrintLn (DSK + CON,": TEST COAX CABLE '+COAXNAME+'");')
         self.write('Lua(')
         self.write('\t -- Test Signal')
         self.write('\tClrAllTest(false)')
@@ -590,6 +590,7 @@ class main:
         self.write('\t\t printtodevices(DSK + CON, " Check '+COAXNAME+' COAX cable wiring")')
         self.write('\t\t AbortTest()')
         self.write('\tprinttodevices(DSK + CON, "")')
+        self.write('\tend')
         self.write(')')
 
     def test_resistor(self, arguments):
