@@ -590,8 +590,8 @@ class main:
         self.write('\t\t printtodevices(DSK + CON, "* FAIL")')
         self.write('\t\t printtodevices(DSK + CON, " Check '+COAXNAME+' COAX cable wiring")')
         self.write('\t\t AbortTest()')
-        self.write('\tprinttodevices(DSK + CON, "")')
         self.write('\tend')
+        self.write('\tprinttodevices(DSK + CON, "")')
         self.write(')')
 
     def test_resistor(self, arguments):
