@@ -6,7 +6,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "2.3")
+        self.sc = SmartConsole("MPT Manager", "2.4")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -344,6 +344,7 @@ class main:
             functions["TEST_DIMMER"] = (self.test_dimmer, ("DIMNAME", "OHM", "POINT1", "POINT2"))
             functions["TEST_CNV"] = (self.test_cnv, ("CNV_NAME", "_24vMIN", "_24vMAX", "_5vMIN", "_5vMAX", "POINT_1", "POINT_2", "POINT_3", "POINT_4"))
             functions["TEST_SSR"] = (self.test_ssr, ("SSR NAME", "OUTPUT1", "OUTPUT2", "INPUT3", "INPUT4", "PROBE1", "PROBE2"))
+            functions["COMMENT"] = (self.make_a_comment, ("TEXT",))
             functions["END"] = (self.end, ())
             self.Script = []
             self.sc.run_script(path+"/script.txt", functions)
@@ -714,6 +715,11 @@ class main:
         self.write('PrintLn (4,"");')
         self.write('PrintLn (4,": TEST RESULT");')
         self.save_code()
+
+    def make_a_comment(self, arguments):
+        txt = arguments[0]
+        self.write('//'+txt)
+        self.write('')
     
     def write(self, text):
         self.Script.append(text)
