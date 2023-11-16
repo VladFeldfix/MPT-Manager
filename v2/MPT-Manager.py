@@ -442,7 +442,7 @@ class main:
         self.write('SetPrintLog(ON=ALL,CON);')
         self.write('PrintLn (4,": GENERAL INFO");')
         self.write('PrintLn (4," /*****  Flex  *****/");')
-        self.write('Print   (4," Date: "); Print(4,date); Print(4,""); Print(4,time);')
+        self.write('Print   (4," Date: "); Print(4,date); Print(4,"  "); Print(4,time);')
         self.write('PrintLn (4,"");')
         self.write('PrintLn (4," Customer: RAFAEL");')
         self.write('PrintLn (4," Ass-y name: '+PRODUCT_DESCRIPTION+'");')
