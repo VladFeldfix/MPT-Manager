@@ -6,7 +6,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "2.4")
+        self.sc = SmartConsole("MPT Manager", "2.5")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -344,6 +344,7 @@ class main:
             functions["TEST_DIMMER"] = (self.test_dimmer, ("DIMNAME", "OHM", "POINT1", "POINT2"))
             functions["TEST_CNV"] = (self.test_cnv, ("CNV_NAME", "_24vMIN", "_24vMAX", "_5vMIN", "_5vMAX", "POINT_1", "POINT_2", "POINT_3", "POINT_4"))
             functions["TEST_SSR"] = (self.test_ssr, ("SSR NAME", "OUTPUT1", "OUTPUT2", "INPUT3", "INPUT4", "PROBE1", "PROBE2"))
+            functions["TEST_RELAY"] = (self.test_relay, ("relay_name", "volts", "power_plus", "power_minus", "switch_side1", "switch_side2"))
             functions["COMMENT"] = (self.make_a_comment, ("TEXT",))
             functions["END"] = (self.end, ())
             self.Script = []
@@ -709,6 +710,25 @@ class main:
         self.write('PowerOff();')
         self.write('PrintLn (4," ");')
         self.write('PrintLn (4," ");')
+    
+    def test_relay(self, arguments):
+        relay_name = arguments[0]
+        volts = arguments[1]
+        power_plus = arguments[2]
+        power_minus = arguments[3]
+        switch_side1 = arguments[4]
+        switch_side2 = arguments[5]
+        self.write('//TEST RELAY + '+relay_name)
+        self.write('PrintLn(DSK + CON,"");')
+        self.write('PrintLn(DSK + CON,": Test '+relay_name+'");')
+        self.write('SetPS(V = '+volts+' Volts, I = 0.2 Amps);')
+        self.write('PowerOn(('+power_plus+','+switch_side1+'),('+power_minus+')); // + (Power +, Switch side 1) - (Power -)')
+        self.write('Delay(500);')
+        self.write('PSV();')
+        self.write('PSI();')
+        self.write('SetReadVolts(MIN='+str(int(volts)-2)+' Volts, MAX='+str(int(volts)+2)+' Volts);')
+        self.write('ReadVolts('+switch_side2+','+power_minus+'); // +(Switch side 2) -(Power -)')
+        self.write('PowerOff();')
 
     def end(self, arguments):
         self.write('//TEST RESULT')
