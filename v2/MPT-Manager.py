@@ -718,16 +718,16 @@ class main:
         power_minus = arguments[3]
         switch_side1 = arguments[4]
         switch_side2 = arguments[5]
-        self.write('//TEST RELAY + '+relay_name)
+        self.write('//TEST RELAY '+relay_name)
         self.write('PrintLn(DSK + CON,"");')
         self.write('PrintLn(DSK + CON,": Test '+relay_name+'");')
         self.write('SetPS(V = '+volts+' Volts, I = 0.2 Amps);')
-        self.write('PowerOn(('+power_plus+','+switch_side1+'),('+power_minus+')); // + (Power +, Switch side 1) - (Power -)')
+        self.write('PowerOn(('+power_plus+','+switch_side1+'),('+power_minus+')); /* + (Power +, Switch side 1) - (Power -)*/')
         self.write('Delay(500);')
         self.write('PSV();')
         self.write('PSI();')
         self.write('SetReadVolts(MIN='+str(int(volts)-2)+' Volts, MAX='+str(int(volts)+2)+' Volts);')
-        self.write('ReadVolts('+switch_side2+','+power_minus+'); // +(Switch side 2) -(Power -)')
+        self.write('ReadVolts('+switch_side2+','+power_minus+'); /* +(Switch side 2) -(Power -)*/')
         self.write('PowerOff();')
 
     def end(self, arguments):
