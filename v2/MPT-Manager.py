@@ -341,7 +341,7 @@ class main:
             functions["TEST_COAX"] = (self.test_coax_cable, ("COAXNAME", "POINT_1", "POINT_2", "POINT_3", "POINT_4"))
             functions["TEST_RESISTOR"] = (self.test_resistor, ("RESNAME", "OHM", "POINT1", "POINT2"))
             functions["TEST_CAPACITOR"] = (self.test_capacitor, ("CAPNAME", "MIN", "MAX", "DICHARGE", "POINT1", "POINT2"))
-            functions["TEST_DIMMER"] = (self.test_dimmer, ("DIMNAME", "OHM", "POINT1", "POINT2"))
+            functions["TEST_DIMMER"] = (self.test_dimmer, ("DIMNAME", "MINOHM", "MAXOHM", "POINT1", "POINT2", "POINT3"))
             functions["TEST_CNV"] = (self.test_cnv, ("CNV_NAME", "_24vMIN", "_24vMAX", "_5vMIN", "_5vMAX", "POINT_1", "POINT_2", "POINT_3", "POINT_4"))
             functions["TEST_SSR"] = (self.test_ssr, ("SSR NAME", "OUTPUT1", "OUTPUT2", "INPUT3", "INPUT4", "PROBE1", "PROBE2"))
             functions["TEST_RELAY"] = (self.test_relay, ("relay_name", "volts", "power_plus", "power_minus", "switch_side1", "switch_side2"))
@@ -427,14 +427,15 @@ class main:
         # generate code
         self.write("/************************************")
         self.write("")
-        self.write("PCBA Part Number: "+PARTNUMBER)
-        self.write("Written by: Evgeny Azov from: FLEX For RAFAEL R&D")
-        self.write("POC on Rafael:FullSurname.FirstName'sFirstLetter.UnitNumber")
-        self.write("Machine Type: MPT5000")
-        self.write("Machine Software Version: 4.4.6.60")
-        self.write("Date: "+self.sc.today())
-        self.write("SW part Number: "+ PARTNUMBER)
-        self.write("According to TRD No.: PS-39-756948 rev.: L")
+        self.write(" PCBA Part Number: "+PARTNUMBER)
+        self.write(" Written by: Evgeny Azov from: FLEX For RAFAEL R&D")
+        self.write(" POC on Rafael:FullSurname.FirstName'sFirstLetter.UnitNumber")
+        self.write(" Machine Type: MPT5000")
+        self.write(" Machine Software Version: 4.4.6.60")
+        self.write(" Date Created: "+self.sc.today())
+        self.write(" Last Update: "+self.sc.today())
+        self.write(" SW part Number: "+ PARTNUMBER)
+        self.write(" According to TRD No.: PS-39-756948 rev.: L")
         self.write("")
         self.write("************************************/")
         self.write('//GET HTML')
@@ -502,8 +503,6 @@ class main:
         elif NCNO == "NC":
             self.write('PrintLn (CON+DSK, "PRESS AND RELEASE BUTTON '+BTNNAME+'");')
             self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
-            self.write('Insulation(('+POINT1+','+POINT2+'));')
-            self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
         elif NCNO == "SWITCH-NO":
             self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+'");')
             self.write('WaitForCont(('+POINT1+','+POINT2+'));')
@@ -513,7 +512,6 @@ class main:
         elif NCNO == "SWITCH-NC":
             self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+'");')
             self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
-            self.write('Insulation(('+POINT1+','+POINT2+'));')
             self.write('PrintLn (CON+DSK, "PRESS BUTTON '+BTNNAME+' AGAIN");')
             self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
 
@@ -627,18 +625,30 @@ class main:
         self.write('SetCAP(Pass = '+MIN+' pF, '+MAX+' pF);')
         self.write('Cap('+NET1+', '+NET2+');')
 
-    def test_dimmer(self, arguments): # TEST_DIMMER POT1 106000 P3.11 P1.34
+    def test_dimmer(self, arguments):
         DIMNAME = arguments[0]
-        OHM = arguments[1]
-        POINT_A = arguments[2]
-        POINT_B = arguments[3]
+        MINOHM = arguments[1]
+        MAXOHM = arguments[2]
+        POINT_A = arguments[3]
+        POINT_B = arguments[4]
+        POINT_C = arguments[5]
 
         self.write('//TEST DIMMER')
-        self.write('PrintLn (4,"TEST DIMMER '+DIMNAME+'");')
-        self.write('PrintLn (4," - 2 wire -");')
-        self.write('SetResistance(LV, Pass = '+OHM+' Ohms +- 2%, I = Auto);')
-        self.write('Prompt("TURN DIMMER '+DIMNAME+' COUNTERCLOCKWISE ALL THE WAY TO THE END");')
-        self.write('Resistor('+POINT_A+','+POINT_B+');')
+        self.write('PrintLn(4,"TEST DIMMER '+DIMNAME+' [2 Wire]");')
+        self.write('Prompt("SET DIMMER '+DIMNAME+' MAX CLOCKWISE AND PRESS CONTINUE");')
+        self.write('SetResistance(LV, Pass = '+MAXOHM+' Ohms +- 5%, I = Auto);')
+        self.write('Resistor('+POINT_C+', '+POINT_B +');')
+        self.write('SetConductor(HC, Pass < '+MINOHM+' Ohm, I = 1000 mA, V = 5 Volts);')
+        self.write('Continuity(('+POINT_C+', '+POINT_A +'));')
+        self.write('Prompt("SET DIMMER '+DIMNAME+' MAX COUNTER-CLOCKWISE AND PRESS CONTINUE");')
+        self.write('SetResistance(LV, Pass = '+MAXOHM+' Ohms +- 5%, I = Auto);')
+        self.write('Resistor('+POINT_C+', '+POINT_A +');')
+        self.write('SetConductor(HC, Pass < '+MINOHM+' Ohm, I = 1000 mA, V = 5 Volts);')
+        self.write('Continuity(('+POINT_C+', '+POINT_B +'));')
+        self.write('Prompt("SET DIMMER '+DIMNAME+' TO NEUTRAL POSITION");')
+        self.write('WaitForNoCont(('+POINT_C+', '+POINT_A +'));')
+        self.write('WaitForNoCont(('+POINT_C+', '+POINT_B +'));')
+
     
     def test_cnv(self, arguments):
         CNV_NAME = arguments[0]
