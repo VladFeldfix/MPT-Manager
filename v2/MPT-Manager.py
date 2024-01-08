@@ -546,7 +546,7 @@ class main:
         NET2 = arguments[3]
 
         self.write('//TEST LED')
-        self.write('PrintLn (4,"TEST LED '+LEDNAME+'");')
+        self.write('PrintLn (4,"TEST LED '+LEDNAME+' [No direction]");')
         self.write('SetPS(V = 5 Volts, I = 0.01 Amps);')
         self.write('PowerOn(('+NET1+'),('+NET2+'));')
         self.write('Confirm("IS LED '+LEDNAME+' '+COLOR+'?");')
