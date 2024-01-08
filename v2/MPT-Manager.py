@@ -549,9 +549,9 @@ class main:
         self.write('PrintLn (4,"TEST LED '+LEDNAME+' [No direction]");')
         self.write('SetPS(V = 5 Volts, I = 0.01 Amps);')
         self.write('PowerOn(('+NET1+'),('+NET2+'));')
-        self.write('Confirm("IS LED '+LEDNAME+' '+COLOR+'?");')
         self.write('PSV();')
         self.write('PSI();')
+        self.write('Confirm("IS LED '+LEDNAME+' '+COLOR+'?");')
         self.write('PowerOff();')
 
     def test_coax_cable(self, arguments):
