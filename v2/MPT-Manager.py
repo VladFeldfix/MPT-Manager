@@ -6,7 +6,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "2.5")
+        self.sc = SmartConsole("MPT Manager", "2.7")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -345,6 +345,8 @@ class main:
             functions["TEST_CNV"] = (self.test_cnv, ("CNV_NAME", "_24vMIN", "_24vMAX", "_5vMIN", "_5vMAX", "POINT_1", "POINT_2", "POINT_3", "POINT_4"))
             functions["TEST_SSR"] = (self.test_ssr, ("SSR NAME", "OUTPUT1", "OUTPUT2", "INPUT3", "INPUT4", "PROBE1", "PROBE2"))
             functions["TEST_RELAY"] = (self.test_relay, ("relay_name", "volts", "power_plus", "power_minus", "switch_side1", "switch_side2"))
+            functions["TEST_DIODE"] = (self.test_diode, ("diode_name", "point1", "point2"))
+            functions["POINT_TO_POINT"] = (self.ptp, ("point1", "point2", "sound"))
             functions["COMMENT"] = (self.make_a_comment, ("TEXT",))
             functions["END"] = (self.end, ())
             self.Script = []
@@ -442,39 +444,39 @@ class main:
         self.write('LoadHTML("'+PARTNUMBER+'.html");')
         self.write('//INFO')
         self.write('SetPrintLog(ON=ALL,CON);')
-        self.write('PrintLn (4,": GENERAL INFO");')
-        self.write('PrintLn (4," /*****  Flex  *****/");')
+        self.write('PrintLn(CON+DSK,": GENERAL INFO");')
+        self.write('PrintLn(CON+DSK," /*****  Flex  *****/");')
         self.write('Print   (4," Date: "); Print(4,date); Print(4,"  "); Print(4,time);')
-        self.write('PrintLn (4,"");')
-        self.write('PrintLn (4," Customer: RAFAEL");')
-        self.write('PrintLn (4," Ass-y name: '+PRODUCT_DESCRIPTION+'");')
-        self.write('PrintLn (4," Ass-y PN: '+PARTNUMBER+'");')
-        self.write('PrintLn (4," Print PN: '+PARTNUMBER+'");')
-        self.write('PrintLn (4," Prog name: '+PARTNUMBER+'");')
-        self.write('PrintLn (4," Wire Diagram: '+DRAWING_PN+' Rev.: '+DRAWING_REV+'");')
-        self.write('PrintLn (4," TRD: PS-39-756948 Rev.: L");')
+        self.write('PrintLn(CON+DSK,"");')
+        self.write('PrintLn(CON+DSK," Customer: RAFAEL");')
+        self.write('PrintLn(CON+DSK," Ass-y name: '+PRODUCT_DESCRIPTION+'");')
+        self.write('PrintLn(CON+DSK," Ass-y PN: '+PARTNUMBER+'");')
+        self.write('PrintLn(CON+DSK," Print PN: '+PARTNUMBER+'");')
+        self.write('PrintLn(CON+DSK," Prog name: '+PARTNUMBER+'");')
+        self.write('PrintLn(CON+DSK," Wire Diagram: '+DRAWING_PN+' Rev.: '+DRAWING_REV+'");')
+        self.write('PrintLn(CON+DSK," TRD: PS-39-756948 Rev.: L");')
         self.write('//GET OPERATOR NAME AND SERIAL NUMBER')
-        self.write('PrintLn (4,"");')
-        self.write('PrintLn (4,": OPERATOR NAME AND PRODUCT SERIAL NUMBER");')
+        self.write('PrintLn(CON+DSK,"");')
+        self.write('PrintLn(CON+DSK,": OPERATOR NAME AND PRODUCT SERIAL NUMBER");')
         self.write('Print(CON+DSK," Operator Name: ");')
         self.write('Input("Enter Operator Name: ");')
         self.write('PrintLn(CON+DSK, TEXT);')
         self.write('Print(CON+DSK," Serial Number: ");')
         self.write('Input("Enter Serial Number: ");')
         self.write('PrintLn(CON+DSK, TEXT);')
-        self.write('PrintLn (4,"");')
+        self.write('PrintLn(CON+DSK,"");')
         self.write('//LOAD CALIBRATION FILE')
         self.write('AdapterCal("C:/MPT/Systems.cal");')
 
     def test_conductor(self, arguments):
         self.write('//TEST CONDUCTOR - 2 wire')
-        self.write('PrintLn (4,"TEST CONDUCTOR - 2 wire");')
+        self.write('PrintLn(CON+DSK,"TEST CONDUCTOR - 2 wire");')
         self.write('SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);')
         self.write('Continuity(all);')
 
     def test_isolation(self, arguments):
         self.write('//TEST INSULATION')
-        self.write('PrintLn (4,"TEST INSULATION");')
+        self.write('PrintLn(CON+DSK,"TEST INSULATION");')
         self.write('SetInsulation(LV, Pass > 100 KOhms, I = Auto);')
         self.write('Insulation(all);')
 
@@ -482,7 +484,7 @@ class main:
         self.write('//TEST  HiPot DC')
         self.write('If(PASSED){')
         self.write('\tPrompt("WARNING! Hi voltage test is about to start. Close the glass dome before continuation");')
-        self.write('\tPrintLn (4,"TEST  HiPot DC");')
+        self.write('\tPrintLn(CON+DSK,"TEST  HiPot DC");')
         self.write('\tSetHiPot(DC, V = 500 Volts, R >100 MOhm,Dwell = 1S, RampUpRate=1000);')
         self.write('\tHiPotDC(ALL);')
         self.write('}')
@@ -494,7 +496,7 @@ class main:
         POINT2 = arguments[3]
 
         self.write('//TEST BUTTON')
-        self.write('PrintLn (4,"TEST BUTTON '+BTNNAME+'");')
+        self.write('PrintLn(CON+DSK,"TEST BUTTON '+BTNNAME+'");')
         if NCNO == "NO":
             self.write('PrintLn (CON+DSK, "PRESS AND RELEASE BUTTON '+BTNNAME+'");')
             self.write('WaitForCont(('+POINT1+','+POINT2+'));')
@@ -521,7 +523,7 @@ class main:
         POINT1 = arguments[2]
         POINT2 = arguments[3]
         self.write('//TEST SWITCH')
-        self.write('PrintLn (4,"TEST SWITCH '+SWNAME+'");')
+        self.write('PrintLn(CON+DSK,"TEST SWITCH '+SWNAME+'");')
         self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION '+POSITION+'");')
         self.write('WaitForCont(('+POINT1+','+POINT2+'));')
         self.write('Continuity(('+POINT1+','+POINT2+'));')
@@ -531,11 +533,11 @@ class main:
         POINT1 = arguments[1]
         POINT2 = arguments[2]
         self.write('//TEST SWITCH')
-        self.write('PrintLn (4,"TEST SWITCH '+SWNAME+' ON");')
+        self.write('PrintLn(CON+DSK,"TEST SWITCH '+SWNAME+' ON");')
         self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION ON");')
         self.write('WaitForCont(('+POINT1+','+POINT2+'));')
         self.write('Continuity(('+POINT1+','+POINT2+'));')
-        self.write('PrintLn (4,"TEST SWITCH '+SWNAME+' OFF");')
+        self.write('PrintLn(CON+DSK,"TEST SWITCH '+SWNAME+' OFF");')
         self.write('PrintLn (CON+DSK, "SET SWITCH '+SWNAME+' TO POSITION OFF");')
         self.write('WaitForNoCont(('+POINT1+','+POINT2+'));')
 
@@ -546,7 +548,7 @@ class main:
         NET2 = arguments[3]
 
         self.write('//TEST LED')
-        self.write('PrintLn (4,"TEST LED '+LEDNAME+' [No direction]");')
+        self.write('PrintLn(CON+DSK,"TEST LED '+LEDNAME+' [No direction]");')
         self.write('SetPS(V = 5 Volts, I = 0.01 Amps);')
         self.write('PowerOn(('+NET1+'),('+NET2+'));')
         self.write('PSV();')
@@ -600,8 +602,8 @@ class main:
         NET2 = arguments[3]
 
         self.write('//TEST RESISTOR')
-        self.write('PrintLn (4,"TEST '+RESNAME+' ('+OHM+'Ohm)");')
-        self.write('PrintLn (4," - 2 wire -");')
+        self.write('PrintLn(CON+DSK,"TEST '+RESNAME+' ('+OHM+'Ohm)");')
+        self.write('PrintLn(CON+DSK," - 2 wire -");')
         self.write('SetResistance(LV, Pass = '+OHM+' Ohms +- 2%, I = Auto);')
         self.write('Resistor ('+NET1+', '+NET2+');')
         
@@ -621,7 +623,7 @@ class main:
             self.write('ClrAllTestCom();')
 
         self.write('//TEST CAPACITOR')
-        self.write('PrintLn (4,"TEST CAPACITOR '+CAPNAME+'");')
+        self.write('PrintLn(CON+DSK,"TEST CAPACITOR '+CAPNAME+'");')
         self.write('SetCAP(Pass = '+MIN+' pF, '+MAX+' pF);')
         self.write('Cap('+NET1+', '+NET2+');')
 
@@ -662,8 +664,8 @@ class main:
         POINT_4 = arguments[8]
 
         self.write('//TEST CNV')
-        self.write('PrintLn (4," ");')
-        self.write('PrintLn (4,"TEST '+CNV_NAME+'");')
+        self.write('PrintLn(CON+DSK," ");')
+        self.write('PrintLn(CON+DSK,"TEST '+CNV_NAME+'");')
         self.write('SetResistance(5v, Pass = '+_24vMIN+' Ohms, '+_24vMAX+' Ohms, I = Auto);')
         self.write('Resistor ('+POINT_1+', '+POINT_2+');')
         self.write('SetResistance(5v, Pass = '+_5vMIN+' Ohms, '+_5vMAX+' Ohms, I = Auto);')
@@ -702,14 +704,14 @@ class main:
         # write machine code
         self.write('//TEST SSR')
         self.write('LoadHTML("SSR Instructions.html")')
-        self.write('PrintLn (4,": TEST SSR");')
-        self.write('PrintLn (4,"--------------------------------------------------------------------");')
-        self.write('PrintLn (4,"Test crocodiles to SSR");')
+        self.write('PrintLn(CON+DSK,": TEST SSR");')
+        self.write('PrintLn(CON+DSK,"--------------------------------------------------------------------");')
+        self.write('PrintLn(CON+DSK,"Test crocodiles to SSR");')
         self.write('SetConductor(HC, Pass < 1 Ohm, I = 100 mA, V = 5 Volts);')
         self.write('Continuity('+INPUT4+',#'+PROBE2+');')
         self.write('Continuity('+OUTPUT1+',#'+PROBE1+');')
-        self.write('PrintLn (4,"--------------------------------------------------------------------");')
-        self.write('PrintLn (4,"TEST SSR1 POWER ON");')
+        self.write('PrintLn(CON+DSK,"--------------------------------------------------------------------");')
+        self.write('PrintLn(CON+DSK,"TEST SSR1 POWER ON");')
         self.write('SetPS(V = 5 Volts, I = 0.01 Amps);')
         self.write('PowerOn(('+INPUT3+','+OUTPUT2+'),('+INPUT4+'));')
         self.write('Delay(1000);')
@@ -718,8 +720,8 @@ class main:
         self.write('SetReadVolts(MIN=4 Volts, MAX=6 Volts );')
         self.write('ReadVolts(#'+PROBE1+',#'+PROBE2+'); // SSR OUTPUT1 -> #'+PROBE1+' SSR INPUT4 -> #'+PROBE2+'')
         self.write('PowerOff();')
-        self.write('PrintLn (4," ");')
-        self.write('PrintLn (4," ");')
+        self.write('PrintLn(CON+DSK," ");')
+        self.write('PrintLn(CON+DSK," ");')
     
     def test_relay(self, arguments):
         relay_name = arguments[0]
@@ -740,10 +742,41 @@ class main:
         self.write('ReadVolts('+switch_side2+','+power_minus+'); /* +(Switch side 2) -(Power -)*/')
         self.write('PowerOff();')
 
+    def test_diode(self, arguments):
+        diode_name = arguments[0]
+        point1 = arguments[1]
+        point1 = arguments[2]
+        self.write('//TEST DIODE '+diode_name)
+        self.write('PrintLn (CON+DSK,"TEST DIODE '+diode_name+'");')
+        self.write('SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);')
+        self.write('Continuity('+point1+','+point2+');')
+        self.write('WaitForNoCont('+point1+','+point2+');')
+        self.write('If(PASSED){')
+        self.write('\tPrintLn(CON+DSK,"  Diode '+diode_name+' is in correct direction");')
+        self.write('}')
+        self.write('If(FAILED){')
+        self.write('\tPrintLn(CON+DSK,"  *Diode '+diode_name+' is NOT in correct direction");')
+        self.write('Abort();')
+        self.write('}')
+    
+    def ptp(self, arguments):
+        point1 = arguments[0]
+        point2 = arguments[1]
+        sound = arguments[2]
+        self.write('PrintLn (CON+DSK, "Touch '+point1+' to '+point2+'");')
+        if sound == "0":
+            self.write('SetAudio(PASS, F = 1500, D = 400);')
+        else:
+            self.write('SetAudio(PASS, F = 800, D = 400);')
+        self.write('WaitForCont('+point1+', '+point2+');')
+        self.write('Continuity('+point1+', '+point2+');')
+        self.write('Delay(1);')
+        self.write('AudioPass();')
+
     def end(self, arguments):
         self.write('//TEST RESULT')
-        self.write('PrintLn (4,"");')
-        self.write('PrintLn (4,": TEST RESULT");')
+        self.write('PrintLn(CON+DSK,"");')
+        self.write('PrintLn(CON+DSK,": TEST RESULT");')
         self.save_code()
 
     def make_a_comment(self, arguments):
