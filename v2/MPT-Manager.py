@@ -346,7 +346,7 @@ class main:
             functions["TEST_SSR"] = (self.test_ssr, ("SSR NAME", "OUTPUT1", "OUTPUT2", "INPUT3", "INPUT4", "PROBE1", "PROBE2"))
             functions["TEST_RELAY"] = (self.test_relay, ("relay_name", "volts", "power_plus", "power_minus", "switch_side1", "switch_side2"))
             functions["TEST_DIODE"] = (self.test_diode, ("diode_name", "point1", "point2"))
-            functions["POINT_TO_POINT"] = (self.ptp, ("point1", "point2", "sound"))
+            functions["POINT_TO_POINT"] = (self.ptp, ("probe", "point1", "point2", "sound"))
             functions["COMMENT"] = (self.make_a_comment, ("TEXT",))
             functions["END"] = (self.end, ())
             self.Script = []
@@ -760,16 +760,18 @@ class main:
         self.write('}')
     
     def ptp(self, arguments):
-        point1 = arguments[0]
-        point2 = arguments[1]
-        sound = arguments[2]
-        self.write('PrintLn (CON+DSK, "Touch '+point1+' to '+point2+'");')
+        probe = arguments[0]
+        point1 = arguments[1]
+        point2 = arguments[2]
+        sound = arguments[3]
+        self.write('PrintLn (CON+DSK, "Touch '+probe+' to '+point1+'");')
+        self.write('SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);')
         if sound == "0":
             self.write('SetAudio(PASS, F = 1500, D = 400);')
         else:
             self.write('SetAudio(PASS, F = 800, D = 400);')
-        self.write('WaitForCont('+point1+', '+point2+');')
-        self.write('Continuity('+point1+', '+point2+');')
+        self.write('WaitForCont('+probe+', '+point2+');')
+        self.write('Continuity('+probe+', '+point2+');')
         self.write('Delay(1);')
         self.write('AudioPass();')
 
