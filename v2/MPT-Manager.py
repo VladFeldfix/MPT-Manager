@@ -6,7 +6,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "2.7")
+        self.sc = SmartConsole("MPT Manager", "2.8")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -764,6 +764,9 @@ class main:
         point1 = arguments[1]
         point2 = arguments[2]
         sound = arguments[3]
+        
+        self.write('')
+        self.write('PrintLn(CON+DSK,"");')
         self.write('PrintLn (CON+DSK, "Touch '+probe+' to '+point1+'");')
         self.write('SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);')
         if sound == "0":
