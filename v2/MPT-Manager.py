@@ -6,7 +6,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "2.8")
+        self.sc = SmartConsole("MPT Manager", "2.9")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -777,6 +777,7 @@ class main:
         self.write('Continuity('+probe+', '+point2+');')
         self.write('Delay(1);')
         self.write('AudioPass();')
+        self.write('WaitForNoCont('+probe+', '+point2+');')
 
     def end(self, arguments):
         self.write('//TEST RESULT')
