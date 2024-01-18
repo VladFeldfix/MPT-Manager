@@ -1,3 +1,4 @@
+# Download SmartConsole.py from: https://github.com/VladFeldfix/Smart-Console/blob/main/SmartConsole.py
 from SmartConsole import *
 import os
 import shutil
@@ -6,7 +7,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "2.9")
+        self.sc = SmartConsole("MPT Manager", "1.0")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
