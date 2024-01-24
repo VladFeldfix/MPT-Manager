@@ -784,7 +784,7 @@ class main:
         self.write('//TEST RESULT')
         self.write('PrintLn(CON+DSK,"");')
         self.write('PrintLn(CON+DSK,": TEST RESULT");')
-        self.write('//Created with MPT-Manager v1.0')
+        self.write('//Created with MPT-Manager v1.0 on '+self.sc.today())
         self.save_code()
 
     def make_a_comment(self, arguments):
