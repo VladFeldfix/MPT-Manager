@@ -7,7 +7,8 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "1.1")
+        self.software_rev = "1.1"
+        self.sc = SmartConsole("MPT Manager", self.software_rev)
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -784,7 +785,7 @@ class main:
         self.write('//TEST RESULT')
         self.write('PrintLn(CON+DSK,"");')
         self.write('PrintLn(CON+DSK,": TEST RESULT");')
-        self.write('//Created with MPT-Manager v1.0 on '+self.sc.today())
+        self.write('//Created with MPT-Manager '+self.software_rev+' on '+self.sc.today())
         self.save_code()
 
     def make_a_comment(self, arguments):
