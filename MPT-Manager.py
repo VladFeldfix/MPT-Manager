@@ -7,7 +7,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.sc = SmartConsole("MPT Manager", "1.0")
+        self.sc = SmartConsole("MPT Manager", "1.1")
 
         # set-up main memu
         self.sc.add_main_menu_item("RUN", self.run)
@@ -431,7 +431,7 @@ class main:
         self.write("/************************************")
         self.write("")
         self.write(" PCBA Part Number: "+PARTNUMBER)
-        self.write(" Written by: Evgeny Azov from: FLEX For RAFAEL R&D")
+        self.write(" Written by: Vlad Feldfix & Vladimir Shishkovsky from: FLEX For RAFAEL R&D")
         self.write(" POC on Rafael:FullSurname.FirstName'sFirstLetter.UnitNumber")
         self.write(" Machine Type: MPT5000")
         self.write(" Machine Software Version: 4.4.6.60")
