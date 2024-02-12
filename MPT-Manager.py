@@ -7,7 +7,7 @@ class main:
     # constructor
     def __init__(self):
         # load smart console
-        self.software_rev = "1.1"
+        self.software_rev = "1.3"
         self.sc = SmartConsole("MPT Manager", self.software_rev)
 
         # set-up main memu
@@ -197,11 +197,13 @@ class main:
                 # test each values
                 if BraidMptSide == "":
                     self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nMissing test cable number")
+                """
                 try:
                     BraidMptSide = int(BraidMptSide)
                 except:
                     self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nTest cable number: "+str(BraidMptSide)+" is not a numerical value")
-                
+                """
+
                 if not Outlet in Outlets:
                     self.sc.fatal_error("in file: "+path+"/testcables_to_outlets.csv\nInvalid outlet number: "+Outlet)
 
@@ -223,10 +225,12 @@ class main:
                 
                 BraidMptSide = BraidProductSide.split(".")
                 BraidMptSide = BraidMptSide[0]
+                """
                 try:
                     BraidMptSide = int(BraidMptSide)
                 except:
                     self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+str(BraidProductSide)+" is not a valid value")
+                """
                 if not BraidMptSide in TestcablesToOutlets:
                     self.sc.fatal_error("in file: "+path+"/testcables_to_product.csv\nTest cable number: "+str(BraidMptSide)+" is not mapped in testcables_to_outlets.csv")
 
@@ -392,12 +396,14 @@ class main:
             htmlfile.write("<div id='content'>\n")
             htmlfile.write("<h1>"+part_number+"</h1>\n")
             htmlfile.write("<table>\n")
-            
             for row in range(3):
                 htmlfile.write("<tr>\n")
                 for out in outlets[row]:
                     if out in OutletsToTestcables:
-                        htmlfile.write("<td class='plug_name'>"+str(OutletsToTestcables[out])+"</td>\n")
+                        X = str(OutletsToTestcables[out])
+                        X = X.replace("R1_","")
+                        X = X.replace("R2_","-")
+                        htmlfile.write("<td class='plug_name'>"+X+"</td>\n")
                     else:
                         htmlfile.write("<td class='plug_name'>_</td>\n")
                 htmlfile.write("</tr>\n")
@@ -408,7 +414,10 @@ class main:
             htmlfile.write("</table>\n")
             
             for BraidProductSide, ProductPlug in TestcablesToProduct.items(): #"10.2":"P5"
-                htmlfile.write('<p>'+str(BraidProductSide)+' <img src="../__HTML__/plug.bmp"> '+str(ProductPlug)+'</p>\n')
+                BraidProductSide = str(BraidProductSide)
+                BraidProductSide = BraidProductSide.replace("R1_","")
+                BraidProductSide = BraidProductSide.replace("R2_","-")
+                htmlfile.write('<p>'+BraidProductSide+' <img src="../__HTML__/plug.bmp"> '+str(ProductPlug)+'</p>\n')
             htmlfile.write("</div>\n")
             htmlfile.write("</body>\n")
             htmlfile.write("</html>\n")
