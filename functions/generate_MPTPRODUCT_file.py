@@ -1,0 +1,2 @@
+def GenerateMPTPRODUCTfile(Data):
+    pass

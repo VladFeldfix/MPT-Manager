@@ -1,8 +1,12 @@
 # Download SmartConsole.py from: https://github.com/VladFeldfix/Smart-Console/blob/main/SmartConsole.py
 from SmartConsole import *
 import os
-import shutil
-from Constructor import Const as Const
+from functions.create_new_product import CreateNewProduct
+from functions.gather_data import GatherData
+from functions.generate_CSV_file import GenerateCSVfile
+from functions.generate_TXT_file import GenerateTXTfile
+from functions.generate_MPTPRODUCT_file import GenerateMPTPRODUCTfile
+from functions.generate_HTML_file import GenerateHTMLfile
 
 class main:
     # constructor
@@ -23,67 +27,40 @@ class main:
         self.sc.test_path(self.programs)
         self.sc.test_path(self.maps)
 
-        # add external constructor
-        self.constructor = Const(self.programs, self.maps)
         # display main menu
         self.sc.start()
     
     def runMPT5000L(self):
-        Machine = "runMPT5000L"
+        Machine = "MPT5000L"
         self.run(Machine)
 
     def runMPT5000(self):
-        Machine = "runMPT5000"
+        Machine = "MPT5000"
         self.run(Machine)
     
     def run(self, Machine):
-        # get part_number
+        # get product name
         part_number = self.sc.input("Insert PART NUMBER [Without R-]").upper()
         path = self.programs+"/"+part_number
-        self.product_part_number = part_number
-        self.path = path
-
-        # for new folder
+        
+        # test if product exists. if not, create a new folder and add basic 5 files
         if not os.path.isdir(path):
             if self.sc.question("No such folder: "+path+"\nWould you like to create a new folder?"):
-                os.makedirs(path)
-                if not os.path.isfile(path+"/netlist.csv"):
-                    file = open(path+"/netlist.csv", 'w')
-                    file.write("CONNAME,PINNAME,NETNUM")
-                    file.close()
-                if not os.path.isfile(path+"/netnames.csv"):
-                    file = open(path+"/netnames.csv", 'w')
-                    file.write("NETNUM,NETNAME")
-                    file.close()
-                if not os.path.isfile(path+"/testcables_to_outlets.csv"):
-                    file = open(path+"/testcables_to_outlets.csv", 'w')
-                    file.write("TESTCABLE,OUTLET")
-                    file.close()
-                if not os.path.isfile(path+"/testcables_to_product.csv"):
-                    file = open(path+"/testcables_to_product.csv", 'w')
-                    file.write("TESTCABLE,PRODUCT,PARTNUMBER")
-                    file.close()
-                if not os.path.isfile(path+"/script.txt"):
-                    file = open(path+"/script.txt", 'w')
-                    file.write("START("+part_number+", Description , Drawing , Drawing_Rev )\n")
-                    file.write("TEST_CONTACT()\n")
-                    file.write("TEST_INSULATION()\n")
-                    file.write("TEST_HIPOT()\n")
-                    file.write("END()\n")
-                    file.close()
-                self.sc.print("Fill all the files and come back here to generate an MPT program")
-                self.sc.open_folder(path)
-                self.sc.restart()
-                return
+                CreateNewProduct(path, part_number)
             else:
                 self.sc.print("Mission aborted")
                 self.sc.restart()
                 return
-        # if an exsiting folder
+        # else, start generating program
         else:
-            self.constructor.read_data(part_number)
-            self.constructor.generate_program(Machine)
-            self.sc.restart()
-            return
+            Data = GatherData(path) # gather data
+            if Machine == "MPT5000L":
+                GenerateCSVfile(Data, self.maps) # generate csv file
+                GenerateTXTfile(Data) # generate txt file
+
+            elif Machine == "MPT5000":
+                GenerateMPTPRODUCTfile(Data) # generate mpt_product file
+            GenerateHTMLfile(Data, Machine) # generate html file
+
 
 main()
