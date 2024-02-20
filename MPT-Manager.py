@@ -3,8 +3,8 @@ from SmartConsole import *
 import os
 from functions.create_new_product import CreateNewProduct
 from functions.gather_data import GatherData
-from functions.generate_CSV_file import GenerateCSVfile
-from functions.generate_TXT_file import GenerateTXTfile
+from functions.create_netlist import CreateNetlist
+from functions.create_script import CreateScript
 from functions.generate_MPTPRODUCT_file import GenerateMPTPRODUCTfile
 from functions.generate_HTML_file import GenerateHTMLfile
 
@@ -54,13 +54,37 @@ class main:
         # else, start generating program
         else:
             Data = GatherData(path) # gather data
+            Netlist = CreateNetlist(Data, self.maps) # generate csv file
+            Script = CreateScript(path, self.software_rev, part_number, Machine)
+            
+            # for each machine something else
             if Machine == "MPT5000L":
-                GenerateCSVfile(Data, self.maps) # generate csv file
-                GenerateTXTfile(Data) # generate txt file
+                # create CSV file
+                path_to_csv_file = path+"/"+part_number+".csv"
+                csv_file = open(path_to_csv_file, 'w')
+                for line in Netlist:
+                    csv_file.write(line+"\n")
+                csv_file.close()
+
+                # create TXT file
+                path_to_txt_file = path+"/"+part_number+".txt"
+                file = open(path_to_txt_file, 'w')
+                file.write(Script)
+                file.close()
+
+                # for html
+                Size = (50, 3, 8)
 
             elif Machine == "MPT5000":
-                GenerateMPTPRODUCTfile(Data) # generate mpt_product file
-            GenerateHTMLfile(Data, Machine) # generate html file
+                 # generate mpt_product file
+                self.sc.print("Generating MPT_PRODUCT file...")
+                GenerateMPTPRODUCTfile(Data, Script)
 
-
+                # for html
+                Size = (50, 3, 10)
+            
+            self.sc.print("Generating HTML file for machine: "+Machine+"...")
+            GenerateHTMLfile(path, Data, part_number, self.maps, Size) # generate html file
+        # done
+        self.sc.restart()
 main()
