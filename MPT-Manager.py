@@ -8,7 +8,7 @@ from functions.create_script import CreateScript
 from functions.generate_MPTPRODUCT_file import GenerateMPTPRODUCTfile
 from functions.generate_HTML_file import GenerateHTMLfile
 
-class main:
+class MAIN:
     # constructor
     def __init__(self):
         # load smart console
@@ -16,75 +16,78 @@ class main:
         self.sc = SmartConsole("MPT Manager", self.software_rev)
 
         # set-up main memu
-        self.sc.add_main_menu_item("RUN MPT-5000 L", self.runMPT5000L)
-        self.sc.add_main_menu_item("RUN MPT-5000", self.runMPT5000)
+        self.sc.add_main_menu_item("RUN MPT-5000 L", self.RunMPT5000L)
+        self.sc.add_main_menu_item("RUN MPT-5000", self.RunMPT5000)
 
         # get settings
-        self.programs = self.sc.get_setting("Programs location")
-        self.maps = self.sc.get_setting("Maps location")
+        self.path_to_products = self.sc.get_setting("Programs location")
+        self.path_to_testcables = self.sc.get_setting("Maps location")
 
         # test all paths
-        self.sc.test_path(self.programs)
-        self.sc.test_path(self.maps)
+        self.sc.test_path(self.path_to_products)
+        self.sc.test_path(self.path_to_testcables)
 
         # display main menu
         self.sc.start()
     
-    def runMPT5000L(self):
-        Machine = "MPT5000L"
-        self.run(Machine)
+    def RunMPT5000L(self):
+        machine = "MPT5000L"
+        self.Run(machine)
 
-    def runMPT5000(self):
-        Machine = "MPT5000"
-        self.run(Machine)
+    def RunMPT5000(self):
+        machine = "MPT5000"
+        self.Run(machine)
     
-    def run(self, Machine):
+    def Run(self, machine):
         # get product name
-        part_number = self.sc.input("Insert PART NUMBER [Without R-]").upper()
-        path = self.programs+"/"+part_number
+        product = self.sc.input("Insert PART NUMBER [Without R-]").upper()
+        path_to_product = self.path_to_products+"/"+product
         
         # test if product exists. if not, create a new folder and add basic 5 files
-        if not os.path.isdir(path):
-            if self.sc.question("No such folder: "+path+"\nWould you like to create a new folder?"):
-                CreateNewProduct(path, part_number)
+        if not os.path.isdir(path_to_product):
+            if self.sc.question("No such folder: "+path_to_product+"\nWould you like to create a new folder?"):
+                CreateNewProduct(path_to_product, product)
             else:
                 self.sc.print("Mission aborted")
                 self.sc.restart()
                 return
         # else, start generating program
         else:
-            Data = GatherData(path) # gather data
-            Netlist = CreateNetlist(Data, self.maps) # generate csv file
-            Script = CreateScript(path, self.software_rev, part_number, Machine)
+            self.sc.print("Gathering data")
+            global_data = GatherData(path_to_product) # gather data
+            csv_data = CreateNetlist(global_data, self.path_to_testcables) # generate csv file
+            txt_data = CreateScript(path_to_product, self.software_rev, product, machine)
             
             # for each machine something else
-            if Machine == "MPT5000L":
+            if machine == "MPT5000L":
                 # create CSV file
-                path_to_csv_file = path+"/"+part_number+".csv"
+                self.sc.print("Generating CSV file")
+                path_to_csv_file = path_to_product+"/"+product+".csv"
                 csv_file = open(path_to_csv_file, 'w')
-                for line in Netlist:
+                for line in csv_data:
                     csv_file.write(line+"\n")
                 csv_file.close()
 
                 # create TXT file
-                path_to_txt_file = path+"/"+part_number+".txt"
-                file = open(path_to_txt_file, 'w')
-                file.write(Script)
-                file.close()
+                self.sc.print("Generating TXT file")
+                path_to_txt_file = path_to_product+"/"+product+".txt"
+                txt_file = open(path_to_txt_file, 'w')
+                txt_file.write(txt_data)
+                txt_file.close()
 
                 # for html
-                Size = (50, 3, 8)
+                outlet_size = (50, 3, 8)
 
-            elif Machine == "MPT5000":
-                 # generate mpt_product file
-                self.sc.print("Generating MPT_PRODUCT file...")
-                GenerateMPTPRODUCTfile(Data, Script)
+            elif machine == "MPT5000":
+                # generate mpt_product file
+                self.sc.print("Generating MPT_PRODUCT file")
+                GenerateMPTPRODUCTfile(global_data, path_to_product, product, txt_data)
 
                 # for html
-                Size = (50, 3, 10)
+                outlet_size = (50, 3, 10)
             
-            self.sc.print("Generating HTML file for machine: "+Machine+"...")
-            GenerateHTMLfile(path, Data, part_number, self.maps, Size) # generate html file
+            self.sc.print("Generating HTML file for machine: "+machine+"")
+            GenerateHTMLfile(path_to_product, global_data, product, self.path_to_testcables, outlet_size) # generate html file
         # done
         self.sc.restart()
-main()
+MAIN()
