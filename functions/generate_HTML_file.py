@@ -63,7 +63,7 @@ def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size):
     htmlfile = open(Path+"/"+Part_Number+".html", 'w')
     htmlfile.write("<html>\n")
     htmlfile.write("<head>\n")
-    htmlfile.write("<link rel = 'stylesheet' type = 'text/css' href = '../__HTML__/style.css'</link>\n")
+    htmlfile.write("<link rel = 'stylesheet' type = 'text/css' href = '../__HTML__/style.css'></link>\n")
     htmlfile.write("</head>\n")
     htmlfile.write("<div id='content'>\n")
     htmlfile.write("<h1>"+Part_Number+"</h1>\n")

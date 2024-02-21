@@ -10,7 +10,9 @@ class TextGenerator:
         self.Machine = Machine
 
     def generate_code(self, load, arguments):
-        file = open("functions/"+self.Machine+"_commands/"+load+".txt", 'r')
+        filename = "functions/"+self.Machine+"_commands/"+load+".txt"
+        sc.test_path(filename)
+        file = open(filename, 'r')
         lines = file.readlines()
         file.close()
         code = ""

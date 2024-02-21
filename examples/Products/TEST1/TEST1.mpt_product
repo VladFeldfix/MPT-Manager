@@ -1,3 +1,23 @@
+{
+	name = [[
+		TEST1
+	]],
+
+	mapping_table = [[
+		P1 = {braid1, 1, braid1_1}
+		P2 = {braid2, 1, braid2_2}
+		P3 = {braid1, 1, braid1_3}
+	]],
+
+	net_list = [[
+		NET1 = {P1.1, P2.A, P3.k1}
+		NET2 = {P1.2, P2.B, P3.k2}
+		NET3_EMPTY_NET = {P3.1}
+	]],
+
+	scripts = {
+		test_program = [[
+
 /************************************
     PCBA Part Number: TEST
     Written by: Vlad Feldfix & Vladimir Shishkovsky from: FLEX For RAFAEL R&D
@@ -62,3 +82,7 @@ PrintLn(CON+DSK,"");
 PrintLn(CON+DSK,": TEST RESULT");
 
 //Created with MPT-Manager 2.0 on 2024-02-21
+
+		]]
+	}
+}
