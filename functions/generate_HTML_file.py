@@ -75,6 +75,10 @@ def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size):
                 X = str(OutletsToTestcables[out])
                 X = X.replace("R1_","")
                 X = X.replace("R2_","-")
+                try:
+                    X = int(X)
+                except:
+                    pass
                 htmlfile.write("<td class='plug_name'>"+X+"</td>\n")
             else:
                 htmlfile.write("<td class='plug_name'>_</td>\n")

@@ -18,56 +18,62 @@
 	scripts = {
 		test_program = [[
 
-/************************************
-    PCBA Part Number: TEST
-    Written by: Vlad Feldfix & Vladimir Shishkovsky from: FLEX For RAFAEL R&D
-    Machine Type: MPT5000
-    Machine Software Version: 4.4.6.60
-    Date Created: 2024-02-21
-    SW part Number: TEST
-    According to TRD No.: PS-39-756948 rev.: L
-************************************/
+-- TEST
+-- Description
+-- Drawing
+-- Drawing_Rev
 
-//GET HTML
-LoadHTML("TEST.html");
+if GetPersist('OperatorName') then OperatorName = GetPersist('OperatorName') else OperatorName = 'OperatorName' end 
+if GetPersist('SerialNumber') then SerialNumber = GetPersist('SerialNumber') else SerialNumber = 'SerialNumber' end
+OperatorName = InputText('Enter Operator Name',OperatorName, 'Operator Name', '')
+SetPersist('OperatorName',OperatorName)
+SerialNumber = InputText('Enter Serial Number',SerialNumber, 'Serial Number', '')
+SetPersist('SerialNumber',SerialNumber)
+Report.Header('Machine Name',"MPT-5000")
+Report.Header('Test TRD',"PS-39-756948 Rev.: L")
+Report.Header('Product Part Number',tostring(TEST))
+Report.Header('Product Description',tostring(Description))
+Report.Header('Wiring Diagram',tostring(Drawing)..'Rev.: '..tostring(Drawing_Rev))
+Report.Header('Written by',"Vlad Feldfix, Vladimir Shishkovsky")
+Report.Header('Operator Name',tostring(OperatorName))
+Report.Header('Serial Number',tostring(SerialNumber))
 
-//INFO
-SetPrintLog(ON=ALL,CON);
-PrintLn(CON+DSK,": GENERAL INFO");
-PrintLn(CON+DSK," /*****  Flex  *****/");
-Print  (4," Date: "); Print(4,date); Print(4,"  "); Print(4,time);
-PrintLn(CON+DSK,"");
-PrintLn(CON+DSK," Customer: RAFAEL");
-PrintLn(CON+DSK," Ass-y name: Description");
-PrintLn(CON+DSK," Ass-y PN: TEST");
-PrintLn(CON+DSK," Print PN: TEST");
-PrintLn(CON+DSK," Prog name: TEST");
-PrintLn(CON+DSK," Wire Diagram: Drawing Rev.: Drawing_Rev");
-PrintLn(CON+DSK," TRD: PS-39-756948 Rev.: L");
+ContinuityParameters = {
+  Label = 'Test Continuity',
+  Device = 'msr',
+  Current = 0.1,
+  Volts = 5,
+  MaxResistance = 1,
+  Kelvin = 0,
+  Tare = 2.5,
+}
 
-//GET OPERATOR NAME AND SERIAL NUMBER
-PrintLn(CON+DSK,"");
-PrintLn(CON+DSK,": OPERATOR NAME AND PRODUCT SERIAL NUMBER");
-Print(CON+DSK," Operator Name: ");
-Input("Enter Operator Name: ");
-PrintLn(CON+DSK, TEXT);
-Print(CON+DSK," Serial Number: ");
-Input("Enter Serial Number: ");
-PrintLn(CON+DSK, TEXT);
-PrintLn(CON+DSK,"");
+ContinuitySetup = {
+  setup = {i = ContinuityParameters.Current, v = ContinuityParameters.Volts, Kelvin = ContinuityParameters.Kelvin, tare = {mode = 'fixed', data = {res = ContinuityParameters.Tare}}},
+  criteria = {r_max = ContinuityParameters.MaxResistance},
+  diagnose = {},
+}
 
-//LOAD CALIBRATION FILE
-AdapterCal("C:/MPT/Systems.cal");
+Continuity(ContinuityParameters.Label, ContinuityParameters.Device, ContinuitySetup)
 
-//TEST CONDUCTOR - 2 wire
-PrintLn(CON+DSK,"TEST CONDUCTOR - 2 wire");
-SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);
-Continuity(all);
+IsolationParameters = {
+  Label = 'Test Isolation',
+  Device = 'msr',
+  Current = 0.1,
+  Volts = 5,
+  MinResistance = 100,
+  Kelvin = 0,
+  Tare = 2.5,
+  Points = 'all'
+}
 
-//TEST INSULATION
-PrintLn(CON+DSK,"TEST INSULATION");
-SetInsulation(LV, Pass > 100 KOhms, I = Auto);
-Insulation(all);
+IsolationSetup = {
+  setup = {i = IsolationParameters.Current, v = IsolationParameters.Volts, kelvin = IsolationParameters.Kelvin, tare = {mode = 'fixed', data = {res = IsolationParameters.Tare}}},
+  criteria = {r_min = IsolationParameters.MinResistance},
+  diagnose = {scan = 'binary'},
+}
+
+Isolation(IsolationParameters.Label, IsolationParameters.Device, IsolationSetup, IsolationParameters.Points)
 
 //TEST HiPot DC
 If(PASSED){
@@ -77,11 +83,10 @@ If(PASSED){
     HiPotDC(ALL);
 }
 
-//TEST RESULT
-PrintLn(CON+DSK,"");
-PrintLn(CON+DSK,": TEST RESULT");
+-- TEST RESULT
+Report.Info("TEST RESULT:")
 
-//Created with MPT-Manager 2.0 on 2024-02-21
+-- Created with MPT-Manager 2.0 on 2024-02-21
 
 		]]
 	}

@@ -1,5 +1,6 @@
 from SmartConsole import SmartConsole
 import shutil
+import os
 sc = SmartConsole("NA", "NA")
 
 class TextGenerator:
@@ -11,6 +12,8 @@ class TextGenerator:
 
     def generate_code(self, load, arguments):
         filename = "functions/"+self.Machine+"_commands/"+load+".txt"
+        if not os.path.isfile(filename):
+            filename = "functions/"+self.Machine+"_commands/"+load+".lua"
         sc.test_path(filename)
         file = open(filename, 'r')
         lines = file.readlines()
