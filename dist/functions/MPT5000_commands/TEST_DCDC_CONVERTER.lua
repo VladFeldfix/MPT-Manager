@@ -1,10 +1,13 @@
-//TEST DC-TO-DC CONVERTER
-PrintLn (DSK + CON,": TEST DC-TO-DC CONVERTER CONVERTERNAME");
-SetPS(V = 3 Volts, I = 0.2 Amps);
-PowerOn((P24V),(P24V_RTN));
-Delay(300);
-SetPS(V = 24 Volts, I = 0.2 Amps);
-Delay(300);
-SetReadVolts(LV, DC, MIN = 4.9 Volts, MAX = 5.1  Volts);
-ReadVolts((P5V),(P5V_RTN));
-PowerOff();
+-- Test DCDC converter
+SetHigh(P24V)
+SetLow(P24V_RTN)
+SetPPSOn('msr', {i = 0.02, v = 3})
+Sleep(300)
+SetPPSOn('msr', {i = 0.02, v = 24})
+Sleep(300)
+ClearAllPoints()
+SetHigh(P5V)
+SetLow(P5V_RTN)
+ReadV ("Test DC-DC converter CONVERTERNAME", 'msr', { }, {v_min = 4.9V, v_max = 5.1V})
+ClearAllPoints()
+SetPPSOff('msr')

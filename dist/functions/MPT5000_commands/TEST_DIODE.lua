@@ -1,12 +1,5 @@
-//TEST DIODE TEST_DIODE
-PrintLn(CON + DSK,"TEST DIODE TEST_DIODE;")
-SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);
-Continuity(POINT1, POINT2);
-WaitForNoCont(POINT2, POINT1);
-If(PASSED){
-    PrintLn(CON + DSK,"  Diode TEST_DIODE is in correct direction");
-}
-If(FAILED){
-    PrintLn(CON + DSK,"  * Diode TEST_DIODE is NOT in correct direction");
-    Abort();
-}
+-- Test diode
+DiodeSetup = {i = 0.1, tare = {mode = 'fixed', data = {res = 2.5}}}
+Report.Info("Testing diode DIODENAME")
+WaitForContinuity('Wait For Continuity', 'Continuity Test: POINT1 to POINT2 for diode DIODENAME. If this message is not disapearing by itself this means that the diode is not working', P1.1, P1.2, 'msr', DiodeSetup, 1)
+WaitForNoContinuity('Wait For No Continuity', 'No Continuity Test: POINT2 to POINT1 for diode DIODENAME. If this message is not disapearing by itself this means that the diode is not working', P1.2, P1.1, 'msr', DiodeSetup, 1)

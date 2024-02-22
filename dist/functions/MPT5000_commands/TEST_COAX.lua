@@ -1,32 +1,22 @@
-//TEST COAX CABLE
-PrintLn (DSK + CON,": TEST COAX CABLE COAXNAME");
-Lua(
-    -- Test Signal
-    ClrAllTest(false)
-    ClrAllCom(false)
-    SetTest(false,"DATA1")
-    SetCom(false,"DATA2")
-    printtodevices(DSK + CON, " Measure signal resistance DATA1 - DATA2")
-    DoContinuity()
-    signal_resistance = lastresmeasurement
+-- Test coax cable COAXNAME
+Report.Info("Test coax cable COAXNAME")
+Report.Info("Measuring DATA resistance DATA1 to DATA2 for coax cable COAXNAME")
+SetHigh(DATA1)
+SetLow(DATA2)
+DataRes = DoResistance('msr', {i = 100mA, delay = 100ms, v = 5, tare = {mode = 'fixed', data = {res = 2.5}}})
+Report.Info("DATA resistance DATA1 to DATA2 = "..DataRes.value_as_str)
+ClearAllPoints()
 
-    -- Test braid
-    ClrAllTest(false)
-    ClrAllCom(false)
-    SetTest(false,"BRAID1")
-    SetCom(false,"BRAID2")
-    printtodevices(DSK + CON, " Measure braid resistance BRAID1 - BRAID2")
-    DoContinuity()
-    braid_resistance = lastresmeasurement
+Report.Info("Measuring BRAID resistance BRAID1 to BRAID2 for coax cable COAXNAME")
+SetHigh(BRAID1)
+SetLow(BRAID2)
+BraidRes = DoResistance('msr', {i = 100mA, delay = 100ms, v = 5, tare = {mode = 'fixed', data = {res = 2.5}}})
+Report.Info("BRAID resistance BRAID1 to BRAID2 = "..BraidRes.value_as_str)
+ClearAllPoints()
 
-    -- Compare
-    if signal_resistance > braid_resistance then
-        printtodevices(DSK + CON, " Test Result: Signal Res > Braid Res", signal_resistance, " > " ,braid_resistance)
-        printtodevices(DSK + CON, " PASS")
-    else
-        printtodevices(DSK + CON, "* FAIL")
-        printtodevices(DSK + CON, " Check COAXNAME COAX cable wiring")
-        AbortTest()
-    end
-    printtodevices(DSK + CON, "")
-)
+Report.Info("Comparing DATA to BRAID")
+if DataRes.value > BraidRes.value then
+  Report.Pass('Passed! Signal resistance is greater than braid resistance: '..DataRes.value_as_str.." > "..BraidRes.value_as_str)
+else
+  Report.Fail('* Failed! Signal resistance is smaller than braid resistance: '..DataRes.value_as_str.." < "..BraidRes.value_as_str)
+end
