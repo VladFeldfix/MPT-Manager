@@ -1,4 +1,1 @@
--- Point to point test
-PointToPointSetup = {i = 0.1, tare = {mode = 'fixed', data = {res = 2.5}}}
-WaitForContinuity("Contact Point: PROBE to Point: POINT1", PROBE, POINT2, 'msr', PointToPointSetup, 1)
-Beep(100)
+-- Find this command in dist/functions/MPT5000_commands

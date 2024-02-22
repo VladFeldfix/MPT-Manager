@@ -1,3 +1,1 @@
--- Test ON-OFF switch
-seitchSetup = {i = 0.1, tare = {mode = 'fixed', data = {res = 2.5}}}
-WaitForContinuity("Set switch SWNAME to position POSITION", POINT1, POINT2, 'msr', seitchSetup, 1);
+-- Find this command in dist/functions/MPT5000_commands

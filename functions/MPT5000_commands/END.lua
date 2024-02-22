@@ -1,4 +1,1 @@
--- Test Result
-Report.Info("Test Result:")
-
--- Created with MPT-Manager SOFTWARE_REV on TODAY
+-- Find this command in dist/functions/MPT5000_commands

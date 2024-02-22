@@ -84,8 +84,8 @@ def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size):
                 htmlfile.write("<td class='plug_name'>_</td>\n")
         htmlfile.write("</tr>\n")
         htmlfile.write('<tr>\n')
-        for x in range(1,9):
-            htmlfile.write('<td class="outlet_name">'+ABC[row]+str(x)+'</td>\n')
+        for x in range(SwitchCards):
+            htmlfile.write('<td class="outlet_name">'+ABC[row]+str(x+1)+'</td>\n')
         htmlfile.write('</tr>\n')
     htmlfile.write("</table>\n")
     
