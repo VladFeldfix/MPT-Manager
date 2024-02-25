@@ -130,17 +130,17 @@ class TextGenerator:
         functions["P5V_RTN"] = arguments[4]
         self.generate_code("TEST_DCDC_CONVERTER",functions)
     
-    def test_ssr(self, arguments):
+    def test_relay(self, arguments):
         function = {}
-        functions["SSRNAME"] = arguments[0]
-        functions["OUTPUT1"] = arguments[1]
-        functions["OUTPUT2"] = arguments[2]
-        functions["INPUT3"] = arguments[3]
-        functions["INPUT4"] = arguments[4]
-        functions["PROBE1"] = arguments[5]
-        functions["PROBE2"] = arguments[6]
+        functions["RELAYNAME"] = arguments[0]
+        functions["INPUT_PLUS"] = arguments[1]
+        functions["INPUT_MINUS"] = arguments[2]
+        functions["OUTPUT_PLUS"] = arguments[3]
+        functions["OUTPUT_MINUS"] = arguments[4]
+        self.generate_code("TEST_RELAY",functions)
         
         # create HTML
+        """
         file = open(self.path+"/"+arguments[0]+" Instructions.html", "w")
         file.write('<html>\n')
         file.write('    <head>\n')
@@ -157,11 +157,12 @@ class TextGenerator:
         file.write('    </body>\n')
         file.write('</html>\n')
         file.close()
-        src = "img/SSR.png"
+        src = "img/RELAY.png"
         dst = self.path+"/"+arguments[0]+" Instructions.jpeg"
         
         shutil.copyfile(src, dst)
-        self.generate_code("TEST_SSR",functions)
+        self.generate_code("TEST_RELAY",functions)
+        """
     
     def test_diode(self, arguments):
         function = {}
@@ -207,7 +208,7 @@ def CreateScript(path,software_rev,part_number,Machine):
     functions["TEST_CAPACITOR"] = (text_generator.test_capacitor, ("CAPNAME", "MIN", "MAX", "POINT1", "POINT2"))
     functions["TEST_DIMMER"] = (text_generator.test_dimmer, ("DIMNAME", "MINOHM", "MAXOHM", "POINT1", "POINT2", "POINT3"))
     functions["TEST_DCDC_CONVERTER"] = (text_generator.test_dc_to_dc, ("CONVERTERNAME", "P24V", "P24V_RTN", "P5V", "P5V_RTN"))
-    functions["TEST_SSR"] = (text_generator.test_ssr, ("SSRNAME", "OUTPUT1", "OUTPUT2", "INPUT3", "INPUT4", "PROBE1", "PROBE2"))
+    functions["TEST_RELAY"] = (text_generator.test_relay, ("RELAYNAME", "INPUT_PLUS", "INPUT_MINUS", "OUTPUT_PLUS", "OUTPUT_MINUS"))
     functions["TEST_DIODE"] = (text_generator.test_diode, ("DIODENAME", "POINT1", "POINT2"))
     functions["POINT_TO_POINT"] = (text_generator.ptp, ("PROBE", "POINT1", "POINT2", "SOUND"))
     functions["END"] = (text_generator.end, ())
