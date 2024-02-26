@@ -20,8 +20,8 @@ def GenerateMPTPRODUCTfile(data, path_to_product, product, script):
     mapping_data = {} # {plug: (testcable, branch)}
     for line in data[3][1:]:
         tmp = line[0]
-        tmp = tmp.split(".")
-        branch = tmp[1]
+        tmp = tmp.split("_")
+        branch = tmp[-1]
         plug = line[1]
         testcable = tmp[0]
         mapping_data[plug] = (testcable, branch)
