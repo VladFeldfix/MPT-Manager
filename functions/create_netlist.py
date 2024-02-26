@@ -28,10 +28,10 @@ def CreateNetlist(data, path_to_test_cables):
             sc.fatal_error(line[0]+" is not unique!")
 
     # gather testcable_plug
-    testcable_plug = {} # {R1_157: P2}
+    testcable_plugs = {} # {R1_157: P2}
     for line in testcables_to_product[1:]:
-        if not line[0] in testcable_plug:
-            testcable_plug[line[0]] = line[1]
+        if not line[0] in testcable_plugs:
+            testcable_plugs[line[0]] = line[1]
         else:
             sc.fatal_error(line[0]+" is not unique!")
 
@@ -59,10 +59,13 @@ def CreateNetlist(data, path_to_test_cables):
         mapp = testcable_outlet_mapp[1][1]
         for line in mapp[1:]:
             global_point = line[0]
+            #print(global_point)
             if len(line) > 1:
                 testcable_plug = line[1]
-                if testcable+"."+testcable_plug in testcable_plug:
-                    PLUG = testcable_plug[testcable+"."+testcable_plug]
+                #print("testcable_plug: ",testcable_plug)
+                #print("testcable_testcable_plug: ",testcable+"_"+testcable_plug)
+                if testcable+"_"+testcable_plug in testcable_plugs:
+                    PLUG = testcable_plugs[testcable+"_"+testcable_plug]
                     PIN = line[2]
                     GLOBAL = int(global_point) + int(GetOutletStart(outlet))
                     if PLUG+"."+PIN in point_net:
@@ -80,6 +83,7 @@ def CreateNetlist(data, path_to_test_cables):
                         NET_LOC = nets[NET][0]
                     else:
                         sc.fatal_error("Unnamed net number: "+NET)
+                    #print(str(PLUG)+","+str(PIN)+","+str(GLOBAL)+","+str(NET)+","+str(NET_LOC)+","+str(NET_NAME)+","+"1")
                     if prev_pin != PLUG+"."+PIN:
                         csv_data.append(str(PLUG)+","+str(PIN)+","+str(GLOBAL)+","+str(NET)+","+str(NET_LOC)+","+str(NET_NAME)+","+"1")
                     else:

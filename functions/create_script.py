@@ -49,21 +49,21 @@ class TextGenerator:
         self.generate_code("TEST_HIPOT",arguments)
     
     def test_button(self, arguments):
-        function = {}
+        functions = {}
         functions["BTNNAME"] = arguments[0]
         functions["POINT1"] = arguments[1]
         functions["POINT2"] = arguments[2]
         self.generate_code("TEST_BUTTON",functions)
     
     def test_button_nc(self, arguments):
-        function = {}
+        functions = {}
         functions["BTNNAME"] = arguments[0]
         functions["POINT1"] = arguments[1]
         functions["POINT2"] = arguments[2]
         self.generate_code("TEST_BUTTON_NC",functions)
 
     def test_switch(self, arguments):
-        function = {}
+        functions = {}
         functions["SWNAME"] = arguments[0]
         functions["POSITION"] = arguments[1]
         functions["POINT1"] = arguments[2]
@@ -71,14 +71,14 @@ class TextGenerator:
         self.generate_code("TEST_SWITCH",functions)
 
     def test_onoffswitch(self, arguments):
-        function = {}
+        functions = {}
         functions["SWNAME"] = arguments[0]
         functions["POINT1"] = arguments[1]
         functions["POINT2"] = arguments[2]
         self.generate_code("TEST_ONOFF_SWITCH",functions)
     
     def test_led(self, arguments):
-        function = {}
+        functions = {}
         functions["LEDNAME"] = arguments[0]
         functions["COLOR"] = arguments[1]
         functions["POINT1"] = arguments[2]
@@ -86,7 +86,7 @@ class TextGenerator:
         self.generate_code("TEST_LED",functions)
     
     def test_coax_cable(self, arguments):
-        function = {}
+        functions = {}
         functions["COAXNAME"] = arguments[0]
         functions["DATA1"] = arguments[1]
         functions["DATA2"] = arguments[2]
@@ -95,7 +95,7 @@ class TextGenerator:
         self.generate_code("TEST_COAX",functions) 
     
     def test_resistor(self, arguments):
-        function = {}
+        functions = {}
         functions["RESNAME"] = arguments[0]
         functions["OHM"] = arguments[1]
         functions["POINT1"] = arguments[2]
@@ -103,7 +103,7 @@ class TextGenerator:
         self.generate_code("TEST_RESISTOR",functions)
 
     def test_capacitor(self, arguments):
-        function = {}
+        functions = {}
         functions["CAPNAME"] = arguments[0]
         functions["MIN"] = arguments[1]
         functions["MAX"] = arguments[2]
@@ -112,7 +112,7 @@ class TextGenerator:
         self.generate_code("TEST_CAPACITOR",functions)
 
     def test_dimmer(self, arguments):
-        function = {}
+        functions = {}
         functions["DIMNAME"] = arguments[0]
         functions["MINOHM"] = arguments[1]
         functions["MAXOHM"] = arguments[2]
@@ -122,7 +122,7 @@ class TextGenerator:
         self.generate_code("TEST_DIMMER",functions)
     
     def test_dc_to_dc(self, arguments):
-        function = {}
+        functions = {}
         functions["CONVERTERNAME"] = arguments[0]
         functions["P24V"] = arguments[1]
         functions["P24V_RTN"] = arguments[2]
@@ -131,7 +131,7 @@ class TextGenerator:
         self.generate_code("TEST_DCDC_CONVERTER",functions)
     
     def test_relay(self, arguments):
-        function = {}
+        functions = {}
         functions["RELAYNAME"] = arguments[0]
         functions["INPUT_PLUS"] = arguments[1]
         functions["INPUT_MINUS"] = arguments[2]
@@ -165,14 +165,14 @@ class TextGenerator:
         """
     
     def test_diode(self, arguments):
-        function = {}
+        functions = {}
         functions["DIODENAME"] = arguments[0]
         functions["POINT1"] = arguments[1]
         functions["POINT2"] = arguments[2]
         self.generate_code("TEST_DIODE",functions)
 
     def ptp(self, arguments):
-        function = {}
+        functions = {}
         functions["PROBE"] = arguments[0]
         functions["POINT1"] = arguments[1]
         functions["POINT2"] = arguments[2]

@@ -73,13 +73,13 @@ def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size):
         for out in outlets[row]:
             if out in OutletsToTestcables:
                 X = str(OutletsToTestcables[out])
+                X = X.replace("R1_00","")
+                X = X.replace("R1_0","")
                 X = X.replace("R1_","")
+                X = X.replace("R2_00","-")
+                X = X.replace("R2_0","-")
                 X = X.replace("R2_","-")
-                try:
-                    X = int(X)
-                except:
-                    pass
-                htmlfile.write("<td class='plug_name'>"+X+"</td>\n")
+                htmlfile.write("<td class='plug_name'>"+str(X)+"</td>\n")
             else:
                 htmlfile.write("<td class='plug_name'>_</td>\n")
         htmlfile.write("</tr>\n")
@@ -91,7 +91,11 @@ def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size):
     
     for BraidProductSide, ProductPlug in TestCablesToProducts.items(): #"10.2":"P5"
         BraidProductSide = str(BraidProductSide)
+        BraidProductSide = BraidProductSide.replace("R1_00","")
+        BraidProductSide = BraidProductSide.replace("R1_0","")
         BraidProductSide = BraidProductSide.replace("R1_","")
+        BraidProductSide = BraidProductSide.replace("R2_00","-")
+        BraidProductSide = BraidProductSide.replace("R2_0","-")
         BraidProductSide = BraidProductSide.replace("R2_","-")
         htmlfile.write('<p>'+BraidProductSide+' <img src="../__HTML__/plug.bmp"> '+str(ProductPlug)+'</p>\n')
     htmlfile.write("</div>\n")

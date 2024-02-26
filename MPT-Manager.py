@@ -7,6 +7,7 @@ from functions.create_netlist import CreateNetlist
 from functions.create_script import CreateScript
 from functions.generate_MPTPRODUCT_file import GenerateMPTPRODUCTfile
 from functions.generate_HTML_file import GenerateHTMLfile
+from functions.failtest import TestData
 
 class MAIN:
     # constructor
@@ -55,6 +56,9 @@ class MAIN:
         else:
             self.sc.print("Gathering data")
             global_data = GatherData(path_to_product) # gather data
+            test = TestData(global_data)
+            if not test[0]:
+                self.sc.fatal_error(test[1])
             csv_data = CreateNetlist(global_data, self.path_to_testcables) # generate csv file
             txt_data = CreateScript(path_to_product, self.software_rev, product, machine)
             
@@ -88,6 +92,8 @@ class MAIN:
             
             self.sc.print("Generating HTML file for machine: "+machine+"")
             GenerateHTMLfile(path_to_product, global_data, product, self.path_to_testcables, outlet_size) # generate html file
+        
         # done
+        self.sc.open_folder(path_to_product)
         self.sc.restart()
 MAIN()
