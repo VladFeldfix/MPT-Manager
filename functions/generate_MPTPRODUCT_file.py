@@ -1,12 +1,16 @@
+from functions.outlets import GetOutletStart
+
 def GenerateMPTPRODUCTfile(data, path_to_product, product, script):
     # make netnames 
     netnames = {} # {1: Net1}
     for line in data[1][1:]:
+        #print(line)
         netnames[line[0]] = line[1]
 
     # make nets dict
     nets = {} # {Net1: [P1.1, P1.2]}
     for line in data[0][1:]:
+        #print(line)
         plug = line[0]
         pin = line[1]
         point = plug+"."+pin
@@ -27,6 +31,13 @@ def GenerateMPTPRODUCTfile(data, path_to_product, product, script):
         testcable = tmp[0]+"_"+tmp[1]
         mapping_data[plug] = (testcable, branch)
 
+    # outlets
+    outlets = {} # {'R2_045': 'A1'}
+    for line in data[2][1:]:
+        testcable = line[0]
+        outlet = line[1]
+        outlets[testcable] = outlet
+
     # generate data
     filedata = ""
 
@@ -41,7 +52,10 @@ def GenerateMPTPRODUCTfile(data, path_to_product, product, script):
     for plug, mapping in mapping_data.items():
         testcable = mapping[0]
         branch = testcable+"_"+mapping[1]
-        filedata += "\t\t"+plug+" = {"+testcable+", 1, "+branch+"}\n"
+        outlet = outlets[testcable]
+        first_global_point = GetOutletStart(outlet)
+        filedata += "\t\t"+plug+" = {'"+testcable+"', "+str(first_global_point+1)+", '"+branch+"'}\n"
+        #filedata += "\t\t"+plug+" = {'"+testcable+"', 1, '"+branch+"'}\n"
     filedata += "\t]],\n\n"
     
     # add netlist
