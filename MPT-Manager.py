@@ -56,7 +56,7 @@ class MAIN:
         else:
             self.sc.print("Gathering data")
             global_data = GatherData(path_to_product) # gather data
-            test = TestData(global_data)
+            test = TestData(global_data, self.path_to_testcables)
             if not test[0]:
                 self.sc.fatal_error(test[1])
             csv_data = CreateNetlist(global_data, self.path_to_testcables) # generate csv file

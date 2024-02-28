@@ -53,6 +53,7 @@ def CreateNetlist(data, path_to_test_cables):
     empty_nets = 1000
     nets = {}
     prev_pin = None
+    used_global_points = []
     for testcable_outlet_mapp in testcable_outletNmap.items():
         testcable = testcable_outlet_mapp[0]
         outlet = testcable_outlet_mapp[1][0]
@@ -84,11 +85,16 @@ def CreateNetlist(data, path_to_test_cables):
                     else:
                         sc.fatal_error("Unnamed net number: "+NET)
                     #print(str(PLUG)+","+str(PIN)+","+str(GLOBAL)+","+str(NET)+","+str(NET_LOC)+","+str(NET_NAME)+","+"1")
-                    if prev_pin != PLUG+"."+PIN:
-                        csv_data.append(str(PLUG)+","+str(PIN)+","+str(GLOBAL)+","+str(NET)+","+str(NET_LOC)+","+str(NET_NAME)+","+"1")
+                    if not GLOBAL in used_global_points:
+                        if prev_pin != PLUG+"."+PIN:
+                            csv_data.append(str(PLUG)+","+str(PIN)+","+str(GLOBAL)+","+str(NET)+","+str(NET_LOC)+","+str(NET_NAME)+","+"1")
+                            used_global_points.append(GLOBAL)
+                        else:
+                            csv_data.pop()
+                            csv_data.append(str(PLUG)+","+str(PIN)+","+str(GLOBAL-1)+","+str(NET)+","+str(NET_LOC)+","+str(NET_NAME)+","+"2")
+                            used_global_points.append(GLOBAL-1)
+                        prev_pin = PLUG+"."+PIN
                     else:
-                        csv_data.pop()
-                        csv_data.append(str(PLUG)+","+str(PIN)+","+str(GLOBAL-1)+","+str(NET)+","+str(NET_LOC)+","+str(NET_NAME)+","+"2")
-                    prev_pin = PLUG+"."+PIN
+                        sc.fatal_error("Overlapping global points: "+str(GLOBAL)+" fix file testcables_to_outlets.csv")
     
     return csv_data
