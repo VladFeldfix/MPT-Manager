@@ -79,7 +79,8 @@ def CreateNetlist(data, path_to_test_cables):
                     if not NET in nets:
                         nets[NET] = [1,NET_NAME]
                     else:
-                        nets[NET][0] += 1
+                        if prev_pin != PLUG+"."+PIN:
+                            nets[NET][0] += 1
                     if NET in nets:
                         NET_LOC = nets[NET][0]
                     else:
@@ -91,6 +92,7 @@ def CreateNetlist(data, path_to_test_cables):
                             used_global_points.append(GLOBAL)
                         else:
                             csv_data.pop()
+                            #NET_LOC -= 1
                             csv_data.append(str(PLUG)+","+str(PIN)+","+str(GLOBAL-1)+","+str(NET)+","+str(NET_LOC)+","+str(NET_NAME)+","+"2")
                             used_global_points.append(GLOBAL-1)
                         prev_pin = PLUG+"."+PIN
