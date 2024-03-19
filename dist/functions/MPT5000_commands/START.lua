@@ -1,8 +1,9 @@
 -- open HTML file in another window
 if GetGlobalPersist('LastHTML') then lastHTML = GetGlobalPersist('LastHTML') else lastHTML = '' end
-if lastHTML ~= '' then
-  os.execute('start cmd /k "cd C:/MPT Studio/db/tests/products/HTML/Products & .html & exit"')
-  SetGlobalPersist('LastHTML', '')
+if lastHTML ~= 'PARTNUMBER' then
+  os.execute('start cmd /k "cd C:/MPT Studio/db/tests/products/HTML/Products & PARTNUMBER.html & exit"')
+  LastHTML = 'PARTNUMBER'
+  SetGlobalPersist('LastHTML', LastHTML)
 end
 
 -- Get Operator Name and Serial Number
@@ -21,7 +22,7 @@ Report.Header('POC on Rafael','FullSurname.FirstName`s FirstLetter.UnitNumber')
 Report.Header('Machine Type',"MPT5000")
 Report.Header('Customer', "RAFAEL")
 Report.Header('Product Name',tostring("PRODUCT_DESCRIPTION"))
-Report.Header('Product Part Number',tostring(""))
+Report.Header('Product Part Number',tostring("PARTNUMBER"))
 Report.Header('Wiring Diagram',tostring("DRAWING_PN")..' Rev.: '..tostring("DRAWING_REV"))
 Report.Header('Test TRD',"PS-39-756948 Rev.: L")
 Report.Header('Operator Name',tostring(OperatorName))
