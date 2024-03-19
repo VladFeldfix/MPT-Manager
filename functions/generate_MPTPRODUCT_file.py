@@ -45,7 +45,7 @@ def GenerateMPTPRODUCTfile(data, path_to_product, product, script):
     filedata += "{\n"
 
     # add name
-    filedata += "\tname = [[\n\t\t"+product+"\n\t]],\n\n"
+    filedata += "\tname = [["+product+"]],\n\n"
     
     # add mapping table
     filedata += "\tmapping_table = [[\n"
@@ -79,6 +79,6 @@ def GenerateMPTPRODUCTfile(data, path_to_product, product, script):
     filedata += "}\n"
 
     # save to file
-    file = open(path_to_product+"/"+product+".mpt_product", 'w')
+    file = open(path_to_product+"/"+product+".mpt_product", 'w', encoding="utf-8")
     file.write(filedata)
     file.close()
