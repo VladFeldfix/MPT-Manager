@@ -1,8 +1,8 @@
 -- HiPot Test
+Report.Info("")
 HiPotSetup = {
-    setup = {v = 500, kelvin = 0, Dwell = 1, tare = {mode = 'fixed', data = {res = 2.5}}},
-    criteria = {r_min = 1000},
-    diagnose = {scan = 'binary'}
+  setup = {v = 500, dwell = 1s, tare = {mode = 'system'}},
+  criteria = {r > 100 MΩ},
+  --diagnose = {scan = 'linear'},
 }
-IR('Test HiPot', 'hvdc', HiPotSetup, HiPotParameters.Points)
-  
+Hipot('Test HiPot DC', 'hvdc', HiPotSetup, "all")

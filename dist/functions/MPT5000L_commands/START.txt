@@ -1,6 +1,6 @@
 /************************************
     PCBA Part Number: PARTNUMBER
-    Written by: Vlad Feldfix & Vladimir Shishkovsky from: FLEX For RAFAEL R&D
+    Written by: Vladimir Shishkovsky from: FLEX For RAFAEL R&D
     Machine Type: MPT5000
     Machine Software Version: 4.4.6.60
     Date Created: TODAY

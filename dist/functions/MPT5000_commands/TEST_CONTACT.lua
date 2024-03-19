@@ -1,6 +1,7 @@
--- Continuity Test 
+-- Continuity Test
+Report.Info("")
 ContinuitySetup = {
-  setup = {i = 0.1, v = 5, Kelvin = 0, tare = {mode = 'fixed', data = {res = 2.5}}},
-  criteria = {r_max = 1},
+  setup = {i = 1000 mA, v = 5 V, tare = {mode = 'system'}},
+  criteria = {r < 1Ω},
 }
-Continuity('Continuity Test', 'msr', ContinuitySetup)
+Continuity('Test Continuity', 'hcs', ContinuitySetup)
