@@ -7,5 +7,3 @@ else
   SetResults.Add.Pass()
   Report.Info("Test Result: Passed")
 end
-
--- Created with MPT-Manager SOFTWARE_REV on TODAY
