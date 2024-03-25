@@ -88,7 +88,7 @@ class MAIN:
                 GenerateMPTPRODUCTfile(global_data, path_to_product, product, txt_data)
 
                 # for html
-                outlet_size = (50, 3, 10)
+                outlet_size = (50, 3, 13)
             
             self.sc.print("Generating HTML file for machine: "+machine+"")
             GenerateHTMLfile(path_to_product, global_data, product, self.path_to_testcables, outlet_size) # generate html file
