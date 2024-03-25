@@ -38,3 +38,7 @@ SetReportLocation(rep_new_path)
 date_stamp = os.date('%d%b%Y')
 str_date_stamp = date_stamp.upper(date_stamp)
 SetReportFileName(SerialNumber..'_'..str_date_stamp..'_'..ProductName())
+
+-- display Operator Name and Serial Number
+Report.Info(OperatorName)
+Report.Info(SerialNumber)
