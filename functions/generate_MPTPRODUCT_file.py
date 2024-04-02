@@ -45,40 +45,41 @@ def GenerateMPTPRODUCTfile(data, path_to_product, product, script):
     filedata += "{\n"
 
     # add name
-    filedata += "\tname = [["+product+"]],\n\n"
+    filedata += "name = [["+product+"]],\n\n"
     
     # add mapping table
-    filedata += "\tmapping_table = [[\n"
+    filedata += "mapping_table = [[\n"
     for plug, mapping in mapping_data.items():
         testcable = mapping[0]
         branch = testcable+"_"+mapping[1]
         outlet = outlets[testcable]
         first_global_point = GetOutletStart(outlet)
-        filedata += "\t\t"+plug+" = {'"+testcable+"', "+str(first_global_point+1)+", '"+branch+"'}\n"
-        #filedata += "\t\t"+plug+" = {'"+testcable+"', 1, '"+branch+"'}\n"
-    filedata += "\t]],\n\n"
+        filedata += plug+" = {'"+testcable+"', "+str(first_global_point+1)+", '"+branch+"'}\n"
+        #filedata += plug+" = {'"+testcable+"', 1, '"+branch+"'}\n"
+    filedata += "]],\n\n"
     
     # add netlist
-    filedata += "\tnet_list = [[\n"
+    filedata += "net_list = [[\n"
     for net_name, points in nets.items():
-        filedata += "\t\t"+net_name+" = {"
-        for point in points:
-            filedata += point+", "
-        filedata = filedata[:-2]
-        filedata += "}\n"
-    filedata += "\t]],\n\n"
+        if len(points) > 1:
+            filedata += net_name+" = {"
+            for point in points:
+                filedata += point+", "
+            filedata = filedata[:-2]
+            filedata += "}\n"
+    filedata += "]],\n\n"
 
     # add script
-    filedata += "\tscripts = {\n"
-    filedata += "\t\ttest_program = [[\n\n"
+    filedata += "scripts = {\n"
+    filedata += "test_program = [[\n\n"
     filedata += script
-    filedata += "\n\n\t\t]]\n"
-    filedata += "\t}\n"
+    filedata += "\n\n]]\n"
+    filedata += "}\n"
     
     # end
     filedata += "}\n"
 
     # save to file
-    file = open(path_to_product+"/"+product+".mpt_product", 'w', encoding="utf-8")
+    file = open(path_to_product+"/"+product+".mpt_product", 'w', encoding="utf_16")
     file.write(filedata)
     file.close()
