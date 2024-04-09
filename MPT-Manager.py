@@ -91,7 +91,7 @@ class MAIN:
                 outlet_size = (50, 3, 13)
             
             self.sc.print("Generating HTML file for machine: "+machine+"")
-            GenerateHTMLfile(path_to_product, global_data, product, self.path_to_testcables, outlet_size) # generate html file
+            GenerateHTMLfile(path_to_product, global_data, product, self.path_to_testcables, outlet_size, machine) # generate html file
         
         # done
         self.sc.open_folder(path_to_product)

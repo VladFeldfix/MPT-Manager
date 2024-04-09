@@ -2,7 +2,7 @@ from SmartConsole import SmartConsole
 
 sc = SmartConsole("NA", "NA")
 
-def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size):
+def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size, machine):
     Result = ""
     ABC = "ABCDEFGHIJKLMNOPQRSTUVWX"
     OutletSize = Size[0] # 50
@@ -60,10 +60,14 @@ def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size):
         outlets.append(new_line)
 
     # generate HTML file
+    if machine == "MPT5000L":
+        csslocation = "../__HTML__"
+    else:
+        csslocation = ".css/"
     htmlfile = open(Path+"/"+Part_Number+".html", 'w')
     htmlfile.write("<html>\n")
     htmlfile.write("<head>\n")
-    htmlfile.write("<link rel = 'stylesheet' type = 'text/css' href = '../__HTML__/style.css'></link>\n")
+    htmlfile.write("<link rel = 'stylesheet' type = 'text/css' href = '"+csslocation+"/style.css'></link>\n")
     htmlfile.write("</head>\n")
     htmlfile.write("<div id='content'>\n")
     htmlfile.write("<h1>"+Part_Number+"</h1>\n")
@@ -97,7 +101,7 @@ def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size):
         BraidProductSide = BraidProductSide.replace("R2_00","-")
         BraidProductSide = BraidProductSide.replace("R2_0","-")
         BraidProductSide = BraidProductSide.replace("R2_","-")
-        htmlfile.write('<p>'+BraidProductSide+' <img src="../__HTML__/plug.bmp"> '+str(ProductPlug)+'</p>\n')
+        htmlfile.write('<p>'+BraidProductSide+' <img src='+csslocation+'/plug.bmp"> '+str(ProductPlug)+'</p>\n')
     htmlfile.write("</div>\n")
     htmlfile.write("</body>\n")
     htmlfile.write("</html>\n")

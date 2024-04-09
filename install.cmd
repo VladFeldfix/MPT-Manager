@@ -1,1 +1,1 @@
-pyinstaller -i favicon.ico --onefile Labeling-Manager.py
+pyinstaller -i favicon.ico --onefile MPT-Manager.py
