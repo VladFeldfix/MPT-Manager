@@ -1,7 +1,7 @@
 -- open HTML file in another window
 if GetGlobalPersist('LastHTML') then lastHTML = GetGlobalPersist('LastHTML') else lastHTML = '' end
 if lastHTML ~= 'PARTNUMBER' then
-  os.execute('start cmd /k "cd C:/MPT Studio/db/tests/products/HTML/Products & PARTNUMBER.html & exit"')
+  os.execute('start cmd /k "cd C:/MPT Studio/db/tests/products/HTML & PARTNUMBER.html & exit"')
   LastHTML = 'PARTNUMBER'
   SetGlobalPersist('LastHTML', LastHTML)
 end
