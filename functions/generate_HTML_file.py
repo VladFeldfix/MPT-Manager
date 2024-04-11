@@ -101,7 +101,7 @@ def GenerateHTMLfile(Path, Data, Part_Number, Maps, Size, machine):
         BraidProductSide = BraidProductSide.replace("R2_00","-")
         BraidProductSide = BraidProductSide.replace("R2_0","-")
         BraidProductSide = BraidProductSide.replace("R2_","-")
-        htmlfile.write('<p>'+BraidProductSide+' <img src='+csslocation+'/plug.bmp"> '+str(ProductPlug)+'</p>\n')
+        htmlfile.write('<p>'+BraidProductSide+' <img src="'+csslocation+'/plug.bmp"> '+str(ProductPlug)+'</p>\n')
     htmlfile.write("</div>\n")
     htmlfile.write("</body>\n")
     htmlfile.write("</html>\n")
