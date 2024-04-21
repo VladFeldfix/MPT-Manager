@@ -49,7 +49,7 @@ class MAIN:
             if self.sc.question("No such folder: "+path_to_product+"\nWould you like to create a new folder?"):
                 CreateNewProduct(path_to_product, product)
             else:
-                self.sc.print("Mission aborted")
+                self.sc.warning("Mission aborted")
                 self.sc.restart()
                 return
         # else, start generating program
