@@ -1,5 +1,6 @@
 -- Test button NC
 Report.Info("")
-Report.Info("Press BTNNAME")
-WaitForNoContinuity("Wait for no continuity", "Press BTNNAME", POINT1, POINT2, 'msr', {i = 100 mA, tare = {mode='system'}}, 1);
-Report.Info("POINT1 -> POINT2")
+Report.Info("Testing button BTNNAME")
+WaitForNoContinuity("Testing isolation POINT1 -> POINT2", "Press button BTNNAME", POINT1, POINT2, 'msr', {i = 100 mA, tare = {mode='system'}}, 1);
+WaitForContinuity("Testing continuity POINT1 -> POINT2", "Release button BTNNAME", POINT1, POINT2, 'msr', {i = 100 mA, tare = {mode='system'}}, 1);
+ClearAllPoints()
