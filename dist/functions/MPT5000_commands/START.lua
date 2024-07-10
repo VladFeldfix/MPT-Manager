@@ -15,18 +15,20 @@ SerialNumber = InputText('Enter Serial Number',SerialNumber, 'Serial Number', ''
 SetPersist('SerialNumber',SerialNumber)
 
 -- Generate report header
+Report.Header('---------------------','-------------------------------')
 Report.Header('PCBA Part Number',ProductName())
 Report.Header('Written by','Vladimir Shishkovsky')
 Report.Header('from','FLEX For RAFAEL R&D')
-Report.Header('POC on Rafael','FullSurname.FirstName`s FirstLetter.UnitNumber')
 Report.Header('Machine Type',"MPT5000")
-Report.Header('Customer', "RAFAEL")
-Report.Header('Product Name',tostring("PRODUCT_DESCRIPTION"))
-Report.Header('Product Part Number',tostring("PARTNUMBER"))
+Report.Header('Machine SW Version',"2.4.2.4")
+Report.Header('Date','TODAY')
+Report.Header('SW Part Number',"PARTNUMBER")
+Report.Header('According to TRD No.',"PS-39-756948 Rev.: L")
+Report.Header('---------------------','-------------------------------')
+Report.Header('UUT Name',tostring("PRODUCT_DESCRIPTION"))
 Report.Header('Wiring Diagram',tostring("DRAWING_PN")..' Rev.: '..tostring("DRAWING_REV"))
-Report.Header('Test TRD',"PS-39-756948 Rev.: L")
+Report.Header('UUT Serial Number',tostring(SerialNumber))
 Report.Header('Operator Name',tostring(OperatorName))
-Report.Header('Serial Number',tostring(SerialNumber))
 
 -- setup forlder for report file
 require "lfs"
