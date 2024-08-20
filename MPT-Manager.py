@@ -13,7 +13,7 @@ class MAIN:
     # constructor
     def __init__(self):
         # load smart console
-        self.software_rev = "2.0"
+        self.software_rev = "2.1"
         self.sc = SmartConsole("MPT Manager", self.software_rev)
 
         # set-up main memu
@@ -60,7 +60,9 @@ class MAIN:
             if not test[0]:
                 self.sc.fatal_error(test[1])
             csv_data = CreateNetlist(global_data, self.path_to_testcables) # generate csv file
-            txt_data = CreateScript(path_to_product, self.software_rev, product, machine)
+            data_from_script = CreateScript(path_to_product, self.software_rev, product, machine)
+            txt_data = data_from_script[0]
+            diode_list = data_from_script[1]
             
             # for each machine something else
             if machine == "MPT5000L":
@@ -85,7 +87,7 @@ class MAIN:
             elif machine == "MPT5000":
                 # generate mpt_product file
                 self.sc.print("Generating MPT_PRODUCT file")
-                GenerateMPTPRODUCTfile(global_data, path_to_product, product, txt_data)
+                GenerateMPTPRODUCTfile(global_data, path_to_product, product, txt_data, diode_list)
 
                 # for html
                 outlet_size = (50, 3, 13)

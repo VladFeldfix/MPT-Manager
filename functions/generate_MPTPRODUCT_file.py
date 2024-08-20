@@ -1,6 +1,6 @@
 from functions.outlets import GetOutletStart
 
-def GenerateMPTPRODUCTfile(data, path_to_product, product, script):
+def GenerateMPTPRODUCTfile(data, path_to_product, product, script, diode_list):
     # make netnames 
     netnames = {} # {1: Net1}
     for line in data[1][1:]:
@@ -68,7 +68,13 @@ def GenerateMPTPRODUCTfile(data, path_to_product, product, script):
             filedata = filedata[:-2]
             filedata += "}\n"
     filedata += "]],\n\n"
-
+    
+    # add diode list
+    if len(diode_list) > 0:
+        filedata += "dio_list=[[\n"
+        filedata += diode_list
+        filedata += "]],\n"
+    
     # add script
     filedata += "scripts = {\n"
     filedata += "test_program = [[\n\n"

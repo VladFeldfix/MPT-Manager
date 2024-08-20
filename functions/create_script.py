@@ -7,6 +7,7 @@ class TextGenerator:
     def __init__(self,path,software_rev,part_number,Machine):
         self.software_rev = software_rev
         self.code = ""
+        self.diode_list = ""
         self.path = path
         self.Machine = Machine
 
@@ -84,6 +85,7 @@ class TextGenerator:
         functions["POINT1"] = arguments[2]
         functions["POINT2"] = arguments[3]
         self.generate_code("TEST_LED",functions)
+        self.diode_list += "{label='"+arguments[0]+"', device='hcs', setup={v = 5 V, i = 0.01 A}, criteria = { v < 5.1 V},  terminals = {test = {"+arguments[2]+"},  com = {"+arguments[3]+"}}}\n"
     
     def test_coax_cable(self, arguments):
         functions = {}
@@ -213,4 +215,4 @@ def CreateScript(path,software_rev,part_number,Machine):
     functions["POINT_TO_POINT"] = (text_generator.ptp, ("PROBE", "POINT1", "POINT2", "SOUND"))
     functions["END"] = (text_generator.end, ())
     sc.run_script(path+"/script.txt", functions)
-    return text_generator.code
+    return (text_generator.code, text_generator.diode_list)
