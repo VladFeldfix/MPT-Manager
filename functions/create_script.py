@@ -85,7 +85,7 @@ class TextGenerator:
         functions["POINT1"] = arguments[2]
         functions["POINT2"] = arguments[3]
         self.generate_code("TEST_LED",functions)
-        self.diode_list += "{label='"+arguments[0]+"', device='hcs', setup={v = 5 V, i = 0.01 A}, criteria = { v < 5.1 V},  terminals = {test = {"+arguments[2]+"},  com = {"+arguments[3]+"}}}\n"
+        self.diode_list += "{label='"+arguments[0]+"', device='hcs', setup={v = 2 V, i = 0.01 A}, criteria = { v < 2.1 V},  terminals = {test = {"+arguments[2]+"},  com = {"+arguments[3]+"}}}\n"
     
     def test_coax_cable(self, arguments):
         functions = {}
