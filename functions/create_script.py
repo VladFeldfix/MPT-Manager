@@ -140,38 +140,14 @@ class TextGenerator:
         functions["OUTPUT_PLUS"] = arguments[3]
         functions["OUTPUT_MINUS"] = arguments[4]
         self.generate_code("TEST_RELAY",functions)
-        
-        # create HTML
-        """
-        file = open(self.path+"/"+arguments[0]+" Instructions.html", "w")
-        file.write('<html>\n')
-        file.write('    <head>\n')
-        file.write('        <link rel="stylesheet" type="text/css" href="../__HTML__/style.css">\n')
-        file.write('    </head>\n')
-        file.write('    <body>\n')
-        file.write('        <div id="content">\n')
-        file.write('            <h1>'+arguments[0]+'</h1>\n')
-        file.write('            <p>\n')
-        file.write('                '+arguments[0]+'<br>\n')
-        file.write('                <img src='+arguments[0]+' Instructions.jpeg>\n')
-        file.write('            </p>\n')
-        file.write('        </div>\n')
-        file.write('    </body>\n')
-        file.write('</html>\n')
-        file.close()
-        src = "img/RELAY.png"
-        dst = self.path+"/"+arguments[0]+" Instructions.jpeg"
-        
-        shutil.copyfile(src, dst)
-        self.generate_code("TEST_RELAY",functions)
-        """
-    
+
     def test_diode(self, arguments):
         functions = {}
         functions["DIODENAME"] = arguments[0]
         functions["POINT1"] = arguments[1]
         functions["POINT2"] = arguments[2]
         self.generate_code("TEST_DIODE",functions)
+        self.diode_list += "{label='"+arguments[0]+"', device='hcs', setup={v = 5 V, i = 0.01 A}, criteria = { v < 5.1 V},  terminals = {test = {"+arguments[2]+"},  com = {"+arguments[3]+"}}}\n"
 
     def ptp(self, arguments):
         functions = {}
