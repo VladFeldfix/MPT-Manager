@@ -1,6 +1,6 @@
 -- Test LED
 Report.Info("")
-Report.Info("Testing LED ")
+Report.Info("Testing LED LEDNAME")
 Diode(LEDNAME)
 Report.Info("Visual tests")
 SetHighAuxiliary(POINT1)
