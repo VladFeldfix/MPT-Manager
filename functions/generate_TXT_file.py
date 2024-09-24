@@ -1,2 +1,0 @@
-def GenerateTXTfile(Data):
-    pass
