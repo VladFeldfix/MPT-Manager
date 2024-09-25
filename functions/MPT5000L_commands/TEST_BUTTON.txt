@@ -1,1 +1,7 @@
-Find this command in dist/functions/MPT5000L_commands
+//TEST BUTTON
+PrintLn(CON+DSK,"TEST BUTTON BTNNAME");
+PrintLn(CON+DSK, "Press button BTNNAME");
+WaitForCont((POINT1, POINT2));
+Continuity((POINT1, POINT2));
+PrintLn(CON+DSK, "Release button BTNNAME");
+WaitForNoCont((POINT1, POINT2));
