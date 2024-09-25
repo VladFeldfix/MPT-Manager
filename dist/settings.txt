@@ -1,2 +1,2 @@
-Programs location > C:\Users\me\Programs
-Maps location > C:\Users\me\Braids
+Programs location > Y:\Rafael\Cables\Cable Test\Programs
+Maps location > Y:\Rafael\Cables\Cable Test\Braids
