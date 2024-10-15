@@ -52,4 +52,9 @@ Outlets["B13"] = 1850
 Outlets["C13"] = 1900
 
 def GetOutletStart(out):
-    return Outlets[out]
+    result = None
+    try:
+        result = Outlets[out]
+    except:
+        pass
+    return result

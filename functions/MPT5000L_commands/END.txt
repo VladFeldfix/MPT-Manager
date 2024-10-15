@@ -1,3 +1,1 @@
-//TEST RESULT
-PrintLn(CON+DSK,"");
-PrintLn(CON+DSK,": TEST RESULT");
+Find this command in dist/functions/MPT5000L_commands

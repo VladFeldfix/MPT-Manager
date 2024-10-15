@@ -68,6 +68,9 @@ def CreateNetlist(data, path_to_test_cables):
                 if testcable+"_"+testcable_plug in testcable_plugs:
                     PLUG = testcable_plugs[testcable+"_"+testcable_plug]
                     PIN = line[2]
+                    outletstart = GetOutletStart(outlet)
+                    if outletstart == None:
+                        return ("Error","Unknown outlet",outlet)
                     GLOBAL = int(global_point) + int(GetOutletStart(outlet))
                     if PLUG+"."+PIN in point_net:
                         NET = point_net[PLUG+"."+PIN]

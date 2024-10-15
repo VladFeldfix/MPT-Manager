@@ -1,4 +1,1 @@
--- Test diode
-Report.Info("")
-Report.Info("Testing diode DIODENAME")
-Diode(DIODENAME)
+-- Find this command in dist/functions/MPT5000_commands
