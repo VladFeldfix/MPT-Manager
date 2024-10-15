@@ -13,7 +13,7 @@ class MAIN:
     # constructor
     def __init__(self):
         # load smart console
-        self.software_rev = "2.3"
+        self.software_rev = "2.4"
         self.sc = SmartConsole("MPT Manager", self.software_rev)
 
         # set-up main memu
@@ -60,6 +60,8 @@ class MAIN:
             if not test[0]:
                 self.sc.fatal_error(test[1])
             csv_data = CreateNetlist(global_data, self.path_to_testcables) # generate csv file
+            if csv_data[0] == "Error":
+                self.sc.fatal_error(csv_data[1]+" "+csv_data[2])
             data_from_script = CreateScript(path_to_product, self.software_rev, product, machine)
             txt_data = data_from_script[0]
             program_ver = data_from_script[1]
