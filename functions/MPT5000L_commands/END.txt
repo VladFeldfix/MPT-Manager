@@ -1,3 +1,0 @@
-//TEST RESULT
-PrintLn(CON+DSK,"");
-PrintLn(CON+DSK,": TEST RESULT");
