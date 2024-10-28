@@ -1,1 +1,4 @@
-Find this command in dist/functions/MPT5000L_commands
+//TEST INSULATION
+PrintLn(CON+DSK,"TEST INSULATION");
+SetInsulation(LV, Pass > 100 KOhms, I = Auto);
+Insulation(all);
