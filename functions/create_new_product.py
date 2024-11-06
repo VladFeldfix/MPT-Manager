@@ -29,4 +29,4 @@ def CreateNewProduct(path, part_number):
         file.write("END()\n")
         file.close()
     sc.print("Fill all the files and come back here to generate an MPT program")
-    sc.open_folder(path)
+    #sc.open_folder(path)
