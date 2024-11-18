@@ -24,6 +24,7 @@ PrintLn(CON+DSK," Print PN: PARTNUMBER");
 PrintLn(CON+DSK," Prog name: PARTNUMBER");
 PrintLn(CON+DSK," Wire Diagram: DRAWING_PN Rev.: DRAWING_REV");
 PrintLn(CON+DSK," TRD: PS-39-756948 Rev.: L");
+FormatLot(" ,,  ,          ,                                ,          ,,            ,     ");
 
 //GET OPERATOR NAME AND SERIAL NUMBER
 PrintLn(CON+DSK,"");
