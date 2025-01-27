@@ -1,5 +1,6 @@
 //TEST LED
-PrintLn(CON+DSK,"TEST LED LEDNAME");
+PrintLn(CON + DSK, "");
+PrintLn(CON+DSK,"#X TEST LED LEDNAME");
 SetPS(V = 5 Volts, I = 0.01 Amps);
 PowerOn((POINT1),(POINT2));
 PSV();

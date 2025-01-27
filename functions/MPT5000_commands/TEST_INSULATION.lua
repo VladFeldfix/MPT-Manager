@@ -5,4 +5,4 @@ IsolationSetup = {
   criteria = {r > 100 kOhm},
   diagnose = {},
 }
-Isolation('Test Isolation', 'msr', IsolationSetup, 'all')
+Isolation('#X Test Isolation', 'msr', IsolationSetup, 'all')

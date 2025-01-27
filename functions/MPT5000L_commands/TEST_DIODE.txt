@@ -1,5 +1,5 @@
 //TEST DIODE
 PrintLn(CON + DSK, "");
-PrintLn(CON + DSK, "TEST DIODE DIODENAME");
+PrintLn(CON + DSK, "#X TEST DIODE DIODENAME");
 SetDiode(I=100 mA, Min=200 mV, Max=1000 mV, Rev=400 V, Leak<10 uA);
 Diode(Both, POINT1, POINT2);

@@ -6,5 +6,5 @@ HiPotSetup = {
 }
 if Failed() then
 else
-Hipot('Test HiPot DC', 'hvdc', HiPotSetup, 'all')
+Hipot('#X Test HiPot DC', 'hvdc', HiPotSetup, 'all')
 end

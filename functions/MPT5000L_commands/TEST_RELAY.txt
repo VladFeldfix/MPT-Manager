@@ -1,5 +1,6 @@
 //TEST RELAY
-PrintLn(CON + DSK,": TEST RELAYNAME");
+PrintLn(CON + DSK, "");
+PrintLn(CON + DSK,"#X TEST RELAYNAME");
 SetPS(V = 15 Volts, I = 1 Amps);
 PowerOn((INPUT_PLUS),(INPUT_MINUS));
 SetConductor(LV, Pass < 1 Ohm);

@@ -9,6 +9,7 @@ class TextGenerator:
         self.code = ""
         self.diode_list = ""
         self.program_ver = ""
+        self.test_number = 0
         self.path = path
         self.Machine = Machine
 
@@ -30,17 +31,28 @@ class TextGenerator:
             n = "\n\n"
         else:
             n = ""
+        code = code.replace("#X", "#"+str(self.test_number))
         self.code += n+code
+        self.test_number += 1
 
     def start(self, arguments):
         functions = {}
         functions["PARTNUMBER"] = arguments[0]
-        functions["PRODUCT_DESCRIPTION"] = arguments[1]
-        functions["DRAWING_PN"] = arguments[2]
-        functions["DRAWING_REV"] = arguments[3]
-        functions["TODAY"] = sc.today()
+        functions["PLREV"] = arguments[1]
+        functions["PR"] = arguments[2]
+        functions["DESCRIPTION"] = arguments[3]
+        functions["DRAWING_PN"] = arguments[4]
+        functions["DRAWING_REV"] = arguments[5]
+        given_date_format = sc.today()
+        months = {"01":"Jan", "02":"Feb", "03":"Mar", "04":"Apr", "05":"May", "06":"Jun", "07":"Jul", "08":"Aug", "09":"Sep", "10":"Oct", "11":"Nov", "12":"Dec"}
+        DAY = given_date_format[8:10]
+        MONTH = months[given_date_format[5:7]]
+        YEAR = given_date_format[0:4]
+        functions["TODAY"] = DAY+" "+MONTH+" "+YEAR
+        functions["ACCORDINGTOTRD"] = arguments[6]
+        functions["TRDREV"] = arguments[7]
         self.generate_code("START",functions)
-        self.program_ver = arguments[3]
+        self.program_ver = arguments[5]
     
     def test_conductor(self, arguments):
         self.generate_code("TEST_CONTACT",arguments)
@@ -174,7 +186,7 @@ class TextGenerator:
 def CreateScript(path,software_rev,part_number,Machine):
     text_generator = TextGenerator(path,software_rev,part_number,Machine)
     functions = {}
-    functions["START"] = (text_generator.start, ("PARTNUMBER", "PRODUCT_DESCRIPTION", "DRAWING_PN", "DRAWING_REV"))
+    functions["START"] = (text_generator.start, ("PARTNUMBER", "PLREV", "PR", "DESCRIPTION", "DRAWING_PN", "DRAWING_REV", "ACCORDINGTOTRD", "TRDREV"))
     functions["TEST_CONTACT"] = (text_generator.test_conductor, ())
     functions["TEST_INSULATION"] = (text_generator.test_isolation, ())
     functions["TEST_HIPOT"] = (text_generator.test_hipot, ())

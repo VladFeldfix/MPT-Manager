@@ -1,4 +1,5 @@
 //TEST INSULATION
-PrintLn(CON+DSK,"TEST INSULATION");
+PrintLn(CON + DSK, "");
+PrintLn(CON+DSK,"#X TEST INSULATION");
 SetInsulation(LV, Pass > 100 KOhms, I = Auto);
 Insulation(all);

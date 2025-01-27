@@ -1,5 +1,6 @@
 //TEST DIMMER
-PrintLn(4,"TEST DIMMER DIMNAME - 2 Wire")
+PrintLn (DSK + CON,"");
+PrintLn(DSK + CON,"#X TEST DIMMER DIMNAME - 2 Wire")
 Prompt("Set dimmer DIMNAME max clockwise and press Continue")
 SetResistance(LV, Pass = MAXOHM Ohms +- 5%, I = Auto)
 Resistor(POINT3, POINT2)

@@ -1,6 +1,6 @@
 -- Test coax cable COAXNAME
 Report.Info("")
-Report.Info("Test coax cable COAXNAME")
+Report.Info("#X Test coax cable COAXNAME")
 Report.Info("Measuring DATA resistance")
 Report.Info("DATA1 to DATA2")
 Report.Info("for coax cable COAXNAME")

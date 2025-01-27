@@ -1,5 +1,5 @@
 -- Test dimmer
-Report.Info("Testing dimmer DIMNAME")
+Report.Info("#X Testing dimmer DIMNAME")
 InfoMessageBox('Set dimmer DIMNAME max clockwise and press Continue','Dimmer Test')
 Resistor(
   {

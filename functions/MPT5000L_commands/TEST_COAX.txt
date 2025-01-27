@@ -1,5 +1,6 @@
 //TEST COAX CABLE
-PrintLn (DSK + CON,": TEST COAX CABLE COAXNAME");
+PrintLn (DSK + CON,"");
+PrintLn (DSK + CON,"#X TEST COAX CABLE COAXNAME");
 Lua(
     -- Test Signal
     ClrAllTest(false)

@@ -1,3 +1,6 @@
+//PROBE TEST
+PrintLn (DSK + CON,"");
+PrintLn (DSK + CON,"#X PROBE TEST");
 PrintLn(CON + DSK, "Touch PROBE to POINT1");
 SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);
 SetAudio(PASS, F = SOUND, D = 400);

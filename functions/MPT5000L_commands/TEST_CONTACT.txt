@@ -1,4 +1,5 @@
 //TEST CONTINUITY [2 WIRE]
-PrintLn(CON+DSK,"TEST CONTINUITY [2 WIRE]");
+PrintLn (DSK + CON,"");
+PrintLn(CON+DSK,"#X TEST CONTINUITY [2 WIRE]");
 SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);
 Continuity(all);

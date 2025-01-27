@@ -22,7 +22,7 @@ def CreateNewProduct(path, part_number):
         file.close()
     if not os.path.isfile(path+"/script.txt"):
         file = open(path+"/script.txt", 'w')
-        file.write("START("+part_number+", Description , Drawing , Drawing_Rev )\n")
+        file.write("START("+part_number+", PL , PR , Description , Drawing , Drawing_Rev , TRD, TRD_Rev )\n")
         file.write("TEST_CONTACT()\n")
         file.write("TEST_INSULATION()\n")
         file.write("TEST_HIPOT()\n")

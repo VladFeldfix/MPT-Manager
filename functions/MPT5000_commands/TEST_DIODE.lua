@@ -1,4 +1,4 @@
 -- Test diode
 Report.Info("")
-Report.Info("Testing diode DIODENAME")
+Report.Info("#X Testing diode DIODENAME")
 Diode(DIODENAME)

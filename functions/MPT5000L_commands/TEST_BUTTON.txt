@@ -1,5 +1,6 @@
 //TEST BUTTON
-PrintLn(CON+DSK,"TEST BUTTON BTNNAME");
+PrintLn (DSK + CON,"");
+PrintLn(CON+DSK,"#X TEST BUTTON BTNNAME");
 PrintLn(CON+DSK, "Press button BTNNAME");
 WaitForCont((POINT1, POINT2));
 Continuity((POINT1, POINT2));

@@ -5,4 +5,4 @@ ContinuitySetup = {
   criteria = {r < 1 Ohm},
   options = {use_star_mode = 1}
 }
-Continuity('Test Continuity', 'hcs', ContinuitySetup)
+Continuity('#X Test Continuity', 'hcs', ContinuitySetup)
