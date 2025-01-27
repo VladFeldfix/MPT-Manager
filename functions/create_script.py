@@ -113,9 +113,10 @@ class TextGenerator:
     def test_resistor(self, arguments):
         functions = {}
         functions["RESNAME"] = arguments[0]
-        functions["OHM"] = arguments[1]
-        functions["POINT1"] = arguments[2]
-        functions["POINT2"] = arguments[3]
+        functions["MINOHM"] = arguments[1]
+        functions["MAXOHM"] = arguments[2]
+        functions["POINT1"] = arguments[3]
+        functions["POINT2"] = arguments[4]
         self.generate_code("TEST_RESISTOR",functions)
 
     def test_capacitor(self, arguments):
@@ -196,7 +197,7 @@ def CreateScript(path,software_rev,part_number,Machine):
     functions["TEST_ONOFF_SWITCH"] = (text_generator.test_onoffswitch, ("SWNAME", "POINT1", "POINT2"))
     functions["TEST_LED"] = (text_generator.test_led, ("LEDNAME", "COLOR", "POINT1", "POINT2"))
     functions["TEST_COAX"] = (text_generator.test_coax_cable, ("COAXNAME", "DATA1", "DATA2", "BRAID1", "BRAID2"))
-    functions["TEST_RESISTOR"] = (text_generator.test_resistor, ("RESNAME", "OHM", "POINT1", "POINT2"))
+    functions["TEST_RESISTOR"] = (text_generator.test_resistor, ("RESNAME", "MINOHM", "MAXOHM", "POINT1", "POINT2"))
     functions["TEST_CAPACITOR"] = (text_generator.test_capacitor, ("CAPNAME", "MIN", "MAX", "POINT1", "POINT2"))
     functions["TEST_DIMMER"] = (text_generator.test_dimmer, ("DIMNAME", "MINOHM", "MAXOHM", "POINT1", "POINT2", "POINT3"))
     functions["TEST_DCDC_CONVERTER"] = (text_generator.test_dc_to_dc, ("CONVERTERNAME", "P24V", "P24V_RTN", "P5V", "P5V_RTN"))

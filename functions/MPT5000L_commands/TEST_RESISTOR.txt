@@ -1,5 +1,5 @@
 //TEST RESISTOR
 PrintLn(CON+DSK,"");
-PrintLn(CON+DSK,"#X TEST RESNAME [OHM Ohm] - 2 wire");
-SetResistance(LV, Pass = OHM Ohms +- 5%, I = Auto);
+PrintLn(CON+DSK,"#X TEST RESNAME [OHM Ohms - OHM Ohms] - 2 wire");
+SetResistance(LV, Pass = OHM Ohms, OHM Ohms, I = Auto);
 Resistor(POINT1,POINT2);
