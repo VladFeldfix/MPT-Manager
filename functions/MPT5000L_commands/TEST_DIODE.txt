@@ -1,5 +1,19 @@
 //TEST DIODE
 PrintLn(CON + DSK, "");
 PrintLn(CON + DSK, "#X TEST DIODE DIODENAME");
-SetDiode(I=100 mA, Min=200 mV, Max=1000 mV, Rev=400 V, Leak<10 uA);
-Diode(Both, POINT1, POINT2);
+SetConductor(HC, Pass < 1 Ohm, I = 1000 mA, V = 5 Volts);
+Continuity(POINT1,POINT2);
+SetInsulation(LV, Pass > 100 KOhms, I = Auto);
+Lua(
+  ClrAllTest(false)
+  ClrAllCom(false)
+  SetTest(false,"POINT2")
+  SetTest(false,"POINT1")
+  DoInsulation()
+  if lastresmeasurement < 1 then
+    printtodevices(DSK+CON, "* Diode DIODENAME Failed!")
+    AbortTest()
+  else
+    printtodevices(DSK+CON, "Diode DIODENAME Passed!")
+  end
+)

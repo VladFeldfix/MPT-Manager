@@ -1,11 +1,5 @@
 //TEST CAPACITOR
 PrintLn (DSK + CON,"");
 PrintLn(CON+DSK,"#X TEST CAPACITOR CAPNAME");
-//DISCHARGE CAPACITOR
-ClrAllTestCom();
-SetCom(POINT1, POINT2);
-Delay(500);
-ClrAllTestCom();
-// TEST
-SetCAP(Pass = MIN pF, MAX pF);
+SetCAP(Pass = MIN uF, MAX uF);
 Cap(POINT1, POINT2);
