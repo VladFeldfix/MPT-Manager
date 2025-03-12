@@ -8,7 +8,7 @@ Lua(
   ClrAllTest(false)
   ClrAllCom(false)
   SetTest(false,"POINT2")
-  SetTest(false,"POINT1")
+  SetCom(false,"POINT1")
   DoInsulation()
   if lastresmeasurement < 1 then
     printtodevices(DSK+CON, "* Diode DIODENAME Failed!")
