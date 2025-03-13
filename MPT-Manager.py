@@ -13,7 +13,7 @@ class MAIN:
     # constructor
     def __init__(self):
         # load smart console
-        self.software_rev = "3.0"
+        self.software_rev = "2.5"
         self.sc = SmartConsole("MPT Manager", self.software_rev)
 
         # set-up main memu
